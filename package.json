@@ -1,0 +1,12 @@
+{
+  "name": "react-organism",
+  "version": "0.1.0",
+  "description": "Separate React state in a dead simple functional way",
+  "main": "index.js",
+  "repository": "https://github.com/BurntCaramel/react-organism.git",
+  "author": "Patrick Smith <patrick@burntcaramel.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "nwb": "^0.16.3"
+  }
+}
