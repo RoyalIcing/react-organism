@@ -6,13 +6,13 @@
 
 ## Dead simple React state management to bring pure components alive
 
-- Builds upon the existing mechanisms of `setState`!
+- Embraces the existing mechanism of `setState`, but avoids boilerplate
 - Lets you separate state management from rendering
 - Simply export your handlers — no writing `this.setState` or `.bind` again and again
 - Avoids loose strings for identifying actions
 - Easy to write units test for
 
-## Example — [Demo](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
+## Example — [Demo code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
 
 ```js
 // state/counter.js
