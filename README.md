@@ -55,6 +55,7 @@ export default makeOrganism(Counter, counterState)
 ```
 
 ```js
+// App.js
 import CounterOrganism from './organisms/Counter'
 
 // ...
@@ -193,6 +194,31 @@ export default makeOrganism(Calculator, {
   changeValue: (props, { target }) => ({ value }) => ({ value: parseInt(target.value, 10) }),
   double: () => ({ value }) => ({ value: value * 2 }),
   add3: () => ({ value }) => ({ value: value + 3 })
+})
+```
+
+### Serialization: Local storage
+
+```js
+// organisms/Counter.js
+import makeOrganism from 'react-organism'
+import Counter from '../components/Counter'
+
+const localStorageKey = 'counter'
+
+export default makeOrganism(Counter, {
+  initial: ({ initialCount = 0 }) => ({ count: initialCount }),
+  load: async (props, prevProps) => {
+    if (!prevProps) {
+      return await JSON.parse(localStorage.getItem(localStorageKey))
+    }
+  },
+  increment: ({ stride = 1 }) => ({ count }) => ({ count: count + stride }),
+  decrement: ({ stride = 1 }) => ({ count }) => ({ count: count - stride })
+}, {
+  onChange(state) {
+    localStorage.setItem(localStorageKey, JSON.stringify(state))
+  }
 })
 ```
 
