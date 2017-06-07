@@ -101,7 +101,7 @@ export default makeOrganism(Counter, {
 })
 ```
 
-## Async
+### Async
 
 Asynchronous code to load from an API is easy:
 
@@ -158,6 +158,47 @@ export default makeOrganism(Items, {
   <ItemsOrganism path='/todos' collectionName='todo items' />
 </div>
 ```
+
+### Handling events
+
+```js
+// components/Calculator.js
+import React, { Component } from 'react'
+
+export default function Calculator({
+  value,
+  handlers: {
+    changeValue,
+    double,
+    add3,
+    initial
+  }
+}) {
+  return (
+    <div>
+      <input value={ value } onChange={ changeValue } />
+      <button onClick={ double } children='Double' />
+      <button onClick={ add3 } children='Add 3' />
+      <button onClick={ initial } children='reset' />
+    </div>
+  )
+}
+```
+
+```js
+// organisms/Calculator.js
+import makeOrganism from 'react-organism'
+import Calculator from '../components/Calculator'
+
+export default makeOrganism(Calculator, {
+  initial: ({ initialValue = 0 }) => ({ value: initialValue }),
+  // Destructure event to get target
+  changeValue: (props, { target }) => ({ value }) => ({ value: parseInt(target.value, 10) }),
+  double: () => ({ value }) => ({ value: value * 2 }),
+  add3: () => ({ value }) => ({ value: value + 3 })
+})
+```
+
 
 [build-badge]: https://img.shields.io/travis/user/repo/master.png?style=flat-square
 [build]: https://travis-ci.org/user/repo
