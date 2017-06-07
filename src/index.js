@@ -1,10 +1,37 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 
 // Returns a new stateful component, given the specified state handlers and a pure component to render with
-export default (handlersIn, Pure, { onChange } = {}) => class Organism extends Component {
+export default (handlersIn, Pure, { onChange } = {}) => class Organism extends PureComponent {
   state = handlersIn.initial(this.props)
 
+  // Uses `load` handler, if present, to asynchronously load initial state
+  loadAsync(prevProps) {
+    if (handlersIn.load) {
+      Promise.resolve(handlersIn.load(this.props, prevProps))
+        .then(updater => updater && this.setState(updater))
+    }
+  }
+
+  componentDidMount() {
+    this.loadAsync(null)
+  }
+
+  componentDidUpdate(prevProps) {
+    this.loadAsync(prevProps)
+  }
+
   handlers = Object.keys(handlersIn).reduce((out, key) => {
+    if (key === 'load') {
+      return out
+    }
+
+    if (key === 'reload' && handlersIn[key] === true) {
+      out.reload = () => {
+        this.loadAsync(null)
+      }
+      return out
+    }
+
     out[key] = (...args) => {
       // Call handler, binding this-context and passing arguments along
       const stateChanger = handlersIn[key].apply(this, args)
