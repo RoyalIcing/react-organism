@@ -16,7 +16,6 @@
 
 ```js
 // state/counter.js
-
 export const initial = () => ({
   count: 0
 })
@@ -27,7 +26,6 @@ export const decrement = () => ({ count }) => ({ count: count - 1 })
 
 ```js
 // components/Counter.js
-
 import React, { Component } from 'react'
 
 export default function Counter({
@@ -49,7 +47,6 @@ export default function Counter({
 
 ```js
 // index.js
-
 import React, { Component } from 'react'
 import { render } from 'react-dom'
 import makeOrganism from 'react-organism'
@@ -70,6 +67,78 @@ function Example() {
 
 render(<Demo/>, document.querySelector('#demo'))
 
+```
+
+Alternatively, you can write handlers inline:
+
+```js
+// organisms/Counter.js
+import makeOrganism from 'react-organism'
+import Counter from './components/Counter'
+
+export default makeOrganism(Counter, {
+  initial: () => ({ count: 0 }),
+  increment: () => ({ count }) => ({ count: count + 1 }),
+  decrement: () => ({ count }) => ({ count: count - 1 })
+})
+```
+
+## Async
+
+Asynchronous code to load from an API is easy:
+
+```js
+// components/Items.js
+import React, { Component } from 'react'
+
+export default function Counter({
+  items,
+  collectionName,
+  handlers: {
+    load
+  }
+}) {
+  return (
+    <div>
+      {
+        !!items ? (
+          `${items.length} ${collectionName}`
+        ) : (
+          'Loading…'
+        )
+      }
+      <div>
+        <button onClick={ load } children='Reload' />
+      </div>
+    </div>
+  )
+}
+```
+
+```js
+// organisms/Items.js
+import makeOrganism from 'react-organism'
+import Items from '../components/Items'
+
+const baseURL = 'https://jsonplaceholder.typicode.com'
+const fetchAPI = (path) => fetch(baseURL + path).then(r => r.json())
+
+export default makeOrganism(Items, {
+  initial: () => ({ items: null }),
+
+  load: async ({ path }, prevProps) => {
+    if (!prevProps || path !== prevProps.path) {
+      return { items: await fetchAPI(path) }
+    }
+  }
+})
+```
+
+```js
+<div>
+  <ItemsOrganism path='/photos' collectionName='photos' />
+  <ItemsOrganism path='/todos' collectionName='todo items' />
+</div>
 ```
 
 [build-badge]: https://img.shields.io/travis/user/repo/master.png?style=flat-square

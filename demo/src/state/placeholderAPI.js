@@ -5,8 +5,7 @@ export const initial = () => ({ items: null })
 
 export const load = async ({ path }, prevProps) => {
   if (!prevProps || path !== prevProps.path) {
+    console.log('load', path)
     return { items: await fetchAPI(path) }
   }
 }
-
-export const reload = true

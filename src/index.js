@@ -22,13 +22,9 @@ export default (Pure, handlersIn, { onChange } = {}) => class Organism extends P
   }
 
   handlers = Object.keys(handlersIn).reduce((out, key) => {
-    // Skip making `load` available
+    // Special case for `load` handler to reload fresh
     if (key === 'load') {
-      return out
-    }
-
-    if (key === 'reload' && handlersIn[key] === true) {
-      out.reload = () => {
+      out.load = () => {
         this.loadAsync(null)
       }
       return out

@@ -4,7 +4,7 @@ export default function Counter({
   items,
   collectionName,
   handlers: {
-    reload
+    load
   }
 }) {
   return (
@@ -17,7 +17,7 @@ export default function Counter({
         )
       }
       <div>
-        <button onClick={ reload } children='Reload' />
+        <button onClick={ load } children='Reload' />
       </div>
     </div>
   )
