@@ -9,6 +9,7 @@ export default (Pure, handlersIn, { onChange } = {}) => class Organism extends P
     if (handlersIn.load) {
       Promise.resolve(handlersIn.load(this.props, prevProps))
         .then(updater => updater && this.setState(updater))
+        .catch(error => this.setState({ loadError: error }))
     }
   }
 
