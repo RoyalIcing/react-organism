@@ -6,6 +6,7 @@ import Counter2Organism from './organisms/Counter2'
 import Counter3Organism from './organisms/Counter3'
 import ItemsOrganism from './organisms/Items'
 import ItemsChoiceOrganism from './organisms/ItemsChoice'
+import CalculatorOrganism from './organisms/Calculator'
 
 class Demo extends Component {
   render() {
@@ -24,6 +25,8 @@ class Demo extends Component {
       <ItemsOrganism path='/todos' collectionName='todos' />
       <hr />
       <ItemsChoiceOrganism />
+      <hr />
+      <CalculatorOrganism />
     </div>
   }
 }
