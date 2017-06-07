@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 
 // Returns a new stateful component, given the specified state handlers and a pure component to render with
-export default (handlersIn, Pure, { onChange } = {}) => class Organism extends PureComponent {
+export default (Pure, handlersIn, { onChange } = {}) => class Organism extends PureComponent {
   state = handlersIn.initial(this.props)
 
   // Uses `load` handler, if present, to asynchronously load initial state
