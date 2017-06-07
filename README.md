@@ -51,8 +51,8 @@ import React, { Component } from 'react'
 import { render } from 'react-dom'
 import makeOrganism from 'react-organism'
 
-import * as counterState from './state/counter'
 import Counter from './components/Counter'
+import * as counterState from './state/counter'
 
 const CounterOrganism = makeOrganism(Counter, counterState)
 
@@ -69,6 +69,8 @@ render(<Demo/>, document.querySelector('#demo'))
 
 ```
 
+### Inline
+
 Alternatively, you can write handlers inline:
 
 ```js
@@ -80,6 +82,22 @@ export default makeOrganism(Counter, {
   initial: () => ({ count: 0 }),
   increment: () => ({ count }) => ({ count: count + 1 }),
   decrement: () => ({ count }) => ({ count: count - 1 })
+})
+```
+
+### Use props
+
+The handlers can easily use props, which are always passed as the first argument
+
+```js
+// organisms/Counter.js
+import makeOrganism from 'react-organism'
+import Counter from './components/Counter'
+
+export default makeOrganism(Counter, {
+  initial: ({ initialCount = 0 }) => ({ count: initialCount }),
+  increment: ({ stride = 1 }) => ({ count }) => ({ count: count + stride }),
+  decrement: ({ stride = 1 }) => ({ count }) => ({ count: count - stride })
 })
 ```
 
