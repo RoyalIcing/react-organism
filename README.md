@@ -54,7 +54,7 @@ import makeOrganism from 'react-organism'
 import * as counterState from './state/counter'
 import Counter from './components/Counter'
 
-const CounterOrganism = makeOrganism(counterState, Counter)
+const CounterOrganism = makeOrganism(Counter, counterState)
 
 function Example() {
   return (
