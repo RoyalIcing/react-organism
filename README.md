@@ -46,27 +46,22 @@ export default function Counter({
 ```
 
 ```js
-// index.js
-import React, { Component } from 'react'
-import { render } from 'react-dom'
+// organisms/Counter.js
 import makeOrganism from 'react-organism'
-
 import Counter from './components/Counter'
 import * as counterState from './state/counter'
 
-const CounterOrganism = makeOrganism(Counter, counterState)
+export default makeOrganism(Counter, counterState)
+```
 
-function Example() {
+```js
+import CounterOrganism from './organisms/Counter'
+
+// ...
   return (
-    <div>
-      <h1>React Organism Example</h1>
-      <CounterOrganism />
-    </div>
+    <CounterOrganism />
   )
 }
-
-render(<Demo/>, document.querySelector('#demo'))
-
 ```
 
 ### Inline
@@ -160,6 +155,8 @@ export default makeOrganism(Items, {
 ```
 
 ### Handling events
+
+Handlers can easily accept arguments such as events.
 
 ```js
 // components/Calculator.js
