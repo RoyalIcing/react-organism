@@ -4,7 +4,8 @@ export default function Counter({
   count,
   handlers: {
     increment,
-    decrement
+    decrement,
+    initial
   }
 }) {
   return (
@@ -12,6 +13,7 @@ export default function Counter({
       <button onClick={ decrement } children='−' />
       <span>{ count }</span>
       <button onClick={ increment } children='+' />
+      <button onClick={ initial } children='reset' />
     </div>
   )
 }
