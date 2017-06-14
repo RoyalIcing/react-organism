@@ -36,16 +36,25 @@ export default (Pure, handlersIn, { onChange } = {}) => class Organism extends P
 
     out[key] = (...args) => {
       // Call handler, binding this-context and passing props and arguments (e.g. event) along
-      const stateChanger = handlersIn[key].apply(this, [ this.props ].concat(args))
-      // Handlers can optionally change the state
-      if (stateChanger) {
-        // Can either be a plain object or a callback to transform the existing state
-        this.setState(
-          stateChanger,
-          // Call onChange once updated with current version of state
-          onChange ? () => { onChange(this.state) } : undefined
-        )
-      }
+      //const stateChanger = handlersIn[key].apply(this, [ this.props ].concat(args))
+      const stateChanger = Promise.resolve(
+        //handlersIn[key].apply(this, [ this.props ].concat(args))
+        handlersIn[key].apply(this, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args))
+      )
+      .then(stateChanger => {
+        // Handlers can optionally change the state
+        if (stateChanger) {
+          // Can either be a plain object or a callback to transform the existing state
+          this.setState(
+            stateChanger,
+            // Call onChange once updated with current version of state
+            onChange ? () => { onChange(this.state) } : undefined
+          )
+        }
+      })
+      .catch(error => {
+        this.setState({ handlerError: error })
+      })
     }
     return out
   }, {})
