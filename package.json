@@ -24,8 +24,8 @@
   },
   "devDependencies": {
     "nwb": "0.16.x",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
   },
   "author": "",
   "homepage": "",
