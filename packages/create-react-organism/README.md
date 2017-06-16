@@ -13,9 +13,7 @@ npm i -g create-react-organism
 create-react-organism CustomName
 ```
 
-This creates a directory for your organism at: **[/src]/organisms/CustomName**
-
-Creates an **organisms** folder in your project, and a folder for your organism inside there.
+Creates an **organisms** directory in your project, and a directory for your organism inside there: : **[/src]/organisms/CustomName**
 
 Three files are created:
 - **[CustomName].js:** a pure React component that renders the given state as props, as well as call action handlers defined in **state.js**
