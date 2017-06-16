@@ -1,6 +1,6 @@
 {
   "name": "create-react-organism",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Tool to easily create react-organism smart components",
   "engines": {
     "node": ">=6"
