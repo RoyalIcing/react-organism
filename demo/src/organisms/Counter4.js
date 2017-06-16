@@ -1,12 +1,6 @@
 import makeOrganism from '../../../src'
 import Counter from '../components/Counter'
 
-const wait = async function(ms) {
-  await new Promise((resolve) => {
-    setTimeout(resolve, ms)
-  })
-}
-
 const waitNextFrame = async function() {
   await new Promise((resolve) => {
     window.requestAnimationFrame(resolve)

@@ -12,7 +12,7 @@ import CalculatorOrganism from './organisms/Calculator'
 class Demo extends Component {
   render() {
     return <div>
-      <h1>react-organism</h1>
+      <h1><a href="https://github.com/RoyalIcing/react-organism">react-organism</a></h1>
       <h3>Simple counter:</h3>
       <CounterOrganism />
       <hr />
@@ -32,9 +32,52 @@ class Demo extends Component {
       <hr />
       <ItemsOrganism path='/todos' collectionName='todos' />
       <hr />
+      <h3>Handling prop changes:</h3>
       <ItemsChoiceOrganism />
       <hr />
+      <h3>Event handlers with calculator:</h3>
       <CalculatorOrganism />
+
+      <style>{`
+* {
+  padding: 0;
+  font-size: inherit;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 18px;
+  font-family: system, "-apple-system", "-webkit-system-font", BlinkMacSystemFont, "Helvetica Neue", "Helvetica", "Segoe UI", "Roboto", "Arial", "freesans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  line-height: 1.3;
+}
+
+a {
+  color: inherit;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+button, input {
+  padding: 0.2em 0.5em;
+  border: 1px solid #ccc;
+  border-radius: 0.25em;
+}
+button {
+  color: #222;
+  background: #eee;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+.h-spaced > * {
+  margin-right: 0.5em;
+}
+`}</style>
     </div>
   }
 }

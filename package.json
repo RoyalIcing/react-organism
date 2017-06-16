@@ -16,7 +16,8 @@
     "dev": "nwb serve-react-demo",
     "test": "nwb test-react",
     "test:coverage": "nwb test-react --coverage",
-    "test:watch": "nwb test-react --server"
+    "test:watch": "nwb test-react --server",
+    "now:deploy": "yarn run build && cd demo/dist && now"
   },
   "dependencies": {},
   "peerDependencies": {

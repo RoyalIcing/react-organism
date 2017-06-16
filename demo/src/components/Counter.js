@@ -9,11 +9,11 @@ export default function Counter({
   }
 }) {
   return (
-    <div>
+    <div className='h-spaced'>
       <button onClick={ decrement } children='−' />
       <span>{ count }</span>
       <button onClick={ increment } children='+' />
-      <button onClick={ initial } children='reset' />
+      <button onClick={ initial } children='Reset' />
     </div>
   )
 }

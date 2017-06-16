@@ -10,7 +10,7 @@ export default function Calculator({
   }
 }) {
   return (
-    <div>
+    <div className='h-spaced'>
       <input value={ value } onChange={ changeValue } />
       <button onClick={ double } children='Double' />
       <button onClick={ add3 } children='Add 3' />

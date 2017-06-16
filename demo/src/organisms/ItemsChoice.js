@@ -11,7 +11,7 @@ export default makeOrganism(({
   }
 }) => (
   <div>
-    <div>
+    <div className='h-spaced'>
       <button onClick={ selectPosts }>Posts</button>
       <button onClick={ selectPhotos }>Photos</button>
       <button onClick={ selectTodos }>Todos</button>
