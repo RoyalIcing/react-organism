@@ -10,64 +10,19 @@
 - Lets you separate state management from rendering
 - Simply export your handlers — no writing `this.setState` or `.bind` again and again
 - Avoids loose strings for identifying actions
-- Easy to write units test for
+- Easy to write units test for (example coming soon)
+- [Dedicated create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`
 
 ## Example — [Demo code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
 
-```js
-// state/counter.js
-export const initial = () => ({
-  count: 0
-})
+- [Basic](#basic)
+- [Using props](#using-props)
+- [Async & promises](#async)
+- [Handling events](#handling-events)
+- [Animation](#animation)
+- [Serialization: Local storage](#serialization-local-storage)
 
-export const increment = () => ({ count }) => ({ count: count + 1 })
-export const decrement = () => ({ count }) => ({ count: count - 1 })
-```
-
-```js
-// components/Counter.js
-import React, { Component } from 'react'
-
-export default function Counter({
-  count,
-  handlers: {
-    increment,
-    decrement
-  }
-}) {
-  return (
-    <div>
-      <button onClick={ decrement } children='−' />
-      <span>{ count }</span>
-      <button onClick={ increment } children='+' />
-    </div>
-  )
-}
-```
-
-```js
-// organisms/Counter.js
-import makeOrganism from 'react-organism'
-import Counter from './components/Counter'
-import * as counterState from './state/counter'
-
-export default makeOrganism(Counter, counterState)
-```
-
-```js
-// App.js
-import CounterOrganism from './organisms/Counter'
-
-// ...
-  return (
-    <CounterOrganism />
-  )
-}
-```
-
-### Inline
-
-Alternatively, you can write handlers inline:
+### Basic
 
 ```js
 // organisms/Counter.js
@@ -81,7 +36,7 @@ export default makeOrganism(Counter, {
 })
 ```
 
-### Use props
+### Using props
 
 The handlers can easily use props, which are always passed as the first argument
 
@@ -197,6 +152,38 @@ export default makeOrganism(Calculator, {
 })
 ```
 
+### Animation
+
+```js
+import makeOrganism from '../../../src'
+import Counter from '../components/Counter'
+
+const waitNextFrame = async function() {
+  await new Promise((resolve) => {
+    window.requestAnimationFrame(resolve)
+  })
+}
+
+export default makeOrganism(Counter, {
+  initial: ({ initialCount = 0 }) => ({ count: initialCount }),
+  _offsetBy: (props, change) => ({ count }) => ({ count: count + change }),
+  increment: async ({ stride = 20, handlers }) => {
+    while (stride > 0) {
+      await waitNextFrame()
+      await handlers._offsetBy(1)
+      stride -= 1
+    }
+  },
+  decrement: async ({ stride = 20, handlers }) => {
+    while (stride > 0) {
+      await waitNextFrame()
+      await handlers._offsetBy(-1)
+      stride -= 1
+    }
+  }
+})
+```
+
 ### Serialization: Local storage
 
 ```js
@@ -220,6 +207,61 @@ export default makeOrganism(Counter, {
     localStorage.setItem(localStorageKey, JSON.stringify(state))
   }
 })
+```
+
+### create-react-organism
+
+React Organism supports separating state handlers and the component into their own files. This means state handlers could be reused by multiple smart components.
+
+```js
+// state/counter.js
+export const initial = () => ({
+  count: 0
+})
+
+export const increment = () => ({ count }) => ({ count: count + 1 })
+export const decrement = () => ({ count }) => ({ count: count - 1 })
+```
+
+```js
+// components/Counter.js
+import React, { Component } from 'react'
+
+export default function Counter({
+  count,
+  handlers: {
+    increment,
+    decrement
+  }
+}) {
+  return (
+    <div>
+      <button onClick={ decrement } children='−' />
+      <span>{ count }</span>
+      <button onClick={ increment } children='+' />
+    </div>
+  )
+}
+```
+
+```js
+// organisms/Counter.js
+import makeOrganism from 'react-organism'
+import Counter from './components/Counter'
+import * as counterState from './state/counter'
+
+export default makeOrganism(Counter, counterState)
+```
+
+```js
+// App.js
+import CounterOrganism from './organisms/Counter'
+
+// ...
+  return (
+    <CounterOrganism />
+  )
+}
 ```
 
 
