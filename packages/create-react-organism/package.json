@@ -1,0 +1,20 @@
+{
+  "name": "create-react-organism",
+  "version": "0.1.0",
+  "description": "Tool to easily create react-organism components",
+  "engines": {
+    "node": ">=6"
+  },
+  "bin": {
+    "create-react-organism": "./bin/create-react-organism.js"
+  },
+  "main": "index.js",
+  "repository": "https://github.com/RoyalIcing/react-organism",
+  "author": "Patrick Smith <patrick@burntcaramel.com>",
+  "license": "MIT",
+  "dependencies": {
+    "creed": "^1.2.1",
+    "cross-spawn": "^5.1.0",
+    "lodash": "^4.17.4"
+  }
+}
