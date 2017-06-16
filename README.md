@@ -11,7 +11,7 @@
 - Simply export your handlers — no writing `this.setState` or `.bind` again and again
 - Avoids loose strings for identifying actions
 - Easy to write units test for (example coming soon)
-- [Dedicated create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`
+- Dedicated [create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`
 
 ## Example — [Demo code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
 
@@ -21,6 +21,7 @@
 - [Handling events](#handling-events)
 - [Animation](#animation)
 - [Serialization: Local storage](#serialization-local-storage)
+- [Separate and reuse state handlers](#separate-and-reuse-state-handlers)
 
 ### Basic
 
@@ -209,9 +210,11 @@ export default makeOrganism(Counter, {
 })
 ```
 
-### create-react-organism
+### Separate and reuse state handlers
 
 React Organism supports separating state handlers and the component into their own files. This means state handlers could be reused by multiple smart components.
+
+Here’s an example of separating state:
 
 ```js
 // state/counter.js
