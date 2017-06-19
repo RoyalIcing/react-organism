@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 export default function FriendsList({
   friendsList,
   handlers: {
-    addFriend
+    addRandomFriend
   }
 }) {
   return (
@@ -20,7 +20,7 @@ export default function FriendsList({
         )
       }
       <div>
-        <button onClick={ () => addFriend({ name: 'Jane Doe' }) } children='Add friend' />
+        <button onClick={ addRandomFriend } children='Add friend' />
       </div>
     </div>
   )

@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 export default function PhotosList({
   photosList,
   handlers: {
-    addPhoto
+    addRandomPhoto
   }
 }) {
   return (
@@ -12,7 +12,7 @@ export default function PhotosList({
         !!photosList ? (
           photosList.map((photo, index) => (
             <div key={ index }>
-              URL: { photo.url }
+              <img src={ photo.url } />
             </div>
           ))
         ) : (
@@ -20,7 +20,7 @@ export default function PhotosList({
         )
       }
       <div>
-        <button onClick={ () => addPhoto({ url: 'https://example.org/' }) } children='Add photo' />
+        <button onClick={ addRandomPhoto } children='Add photo' />
       </div>
     </div>
   )
