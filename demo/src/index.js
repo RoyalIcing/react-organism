@@ -8,6 +8,7 @@ import Counter4Organism from './organisms/Counter4'
 import ItemsOrganism from './organisms/Items'
 import ItemsChoiceOrganism from './organisms/ItemsChoice'
 import CalculatorOrganism from './organisms/Calculator'
+import SocialOrganism from './organisms/Social'
 
 class Demo extends Component {
   render() {
@@ -37,6 +38,9 @@ class Demo extends Component {
       <hr />
       <h3>Event handlers with calculator:</h3>
       <CalculatorOrganism />
+      <hr />
+      <h3>Multi-celled organism</h3>
+      <SocialOrganism />
 
       <style>{`
 * {
