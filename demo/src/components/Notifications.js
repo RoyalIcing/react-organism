@@ -1,14 +1,18 @@
 import React from 'react'
 
 export default function Notifications({
-  friends,
-  photos
+  friends: {
+    friendsList
+  },
+  photos: {
+    photosList
+  }
 }) {
   return (
     <div>
-      { friends && `${friends.friendsList.length} friends` }
-      { ' ' }
-      { photos && `${photos.photosList.length} photos` }
+      { `${friendsList.length} friends` }
+      { ' | ' }
+      { `${photosList.length} photos` }
     </div>
   )
 }
