@@ -9,6 +9,7 @@ const convertUserToFriend = (user) => ({
 const fetchRandomFriends = () =>
   fetch('https://randomapi.com/api/6de6abfedb24f889e0b5f675edc50deb?fmt=raw&sole')
     .then(res => res.json())
+    .then(users => users.slice(0, 10))
     .then(users => users.map(convertUserToFriend))
 
 export const load = async (props, prevProps) => {
