@@ -3,7 +3,8 @@ import React, { Component } from 'react'
 export default function PhotosList({
   photosList,
   handlers: {
-    addRandomPhoto
+    addRandomPhoto,
+    addPhoto
   }
 }) {
   return (
@@ -20,7 +21,16 @@ export default function PhotosList({
         )
       }
       <div>
-        <button onClick={ addRandomPhoto } children='Add photo' />
+        <form data-extract data-reset onSubmit={ addPhoto }>
+          <label>
+            {'URL: '}
+            <input type='url' name='url' />
+          </label>
+          <button type='submit' children='Add photo' />
+        </form>
+      </div>
+      <div>
+        <button onClick={ addRandomPhoto } children='Add random photo' />
       </div>
     </div>
   )

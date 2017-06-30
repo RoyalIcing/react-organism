@@ -31,24 +31,46 @@ export default function makeMultiOrganism(Parent, cells, { onChange } = {}) {
             const dataKeys = Object.keys(dataset)
             // Extract values from dataset
             if (dataKeys.length > 0) {
-              const values = dataKeys.reduce((values, dataKey) => {
-                let value
-                if (numberRegex.test(dataKey)) {
-                  // Read and convert value
-                  value = parseFloat(dataset[dataKey])
-                  // Strip off _number suffix from final key
-                  dataKey = dataKey.replace(numberRegex, '')
-                }
-                else {
-                  // Use string value
-                  value = dataset[dataKey]
+              // If submitting a form and data-extract is present on the <form>
+              if (event.type === 'submit' && dataset.extract) {
+                event.preventDefault()
+
+                const reset = !!dataset.reset // data-reset
+                const { elements } = event.target
+                let values = {}
+                // Loop through form elements https://stackoverflow.com/a/19978872
+                for (let i = 0, element; element = elements[i++];) {
+                    // Read value from <input>
+                    values[element.name] = element.value
+                    if (reset) {
+                      // Reset <input> value
+                      element.value = ''
+                    }
                 }
                 
-                values[dataKey] = value
-                return values
-              }, {})
-              // Change arguments to extracted dataset values
-              args = [values]
+                // Change arguments to extracted dataset values
+                args = [values]
+              }
+              else {
+                const values = dataKeys.reduce((values, dataKey) => {
+                  let value
+                  if (numberRegex.test(dataKey)) {
+                    // Read and convert value
+                    value = parseFloat(dataset[dataKey])
+                    // Strip off _number suffix from final key
+                    dataKey = dataKey.replace(numberRegex, '')
+                  }
+                  else {
+                    // Use string value
+                    value = dataset[dataKey]
+                  }
+                  
+                  values[dataKey] = value
+                  return values
+                }, {})
+                // Change arguments to extracted dataset values
+                args = [values]
+              }
             }
           }
           const stateChanger = Promise.resolve(

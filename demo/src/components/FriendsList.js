@@ -28,7 +28,7 @@ export default function FriendsList({
         )
       }
       <div>
-        <button onClick={ addRandomFriend } children='Add friend' />
+        <button onClick={ addRandomFriend } children='Add random friend' />
       </div>
     </div>
   )
