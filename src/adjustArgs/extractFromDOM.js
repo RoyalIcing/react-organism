@@ -1,6 +1,6 @@
 const numberRegex = /_number$/
 
-export default function argsExtractDOMValues(args) {
+export default function extractFromDOM(args) {
   // If being passed an event with DOM element that has a dataset
   if (args[0] && args[0].target && args[0].target.dataset) {
     const event = args[0]
