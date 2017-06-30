@@ -1,7 +1,9 @@
 import React from 'react'
 
+const numberRegex = /_number$/
+
 export default function makeMultiOrganism(Parent, cells, { onChange } = {}) {
-  return class Smart extends React.Component {
+  return class OrganismMultiCelled extends React.Component {
     state = Object.keys(cells).reduce((state, cellKey) => {
       state[cellKey] = cells[cellKey].initial(this.props)
       return state
@@ -22,7 +24,35 @@ export default function makeMultiOrganism(Parent, cells, { onChange } = {}) {
         out[key] = (...args) => {
           // Call handler, binding this-context and passing props and arguments (e.g. event) along
           // Note: that this should only be given its own handlers, as that’s all it knows about
+          // If being passed an event with DOM element that has a dataset
+          if (args[0] && args[0].target && args[0].target.dataset) {
+            const event = args[0]
+            const { dataset } = event.target
+            const dataKeys = Object.keys(dataset)
+            // Extract values from dataset
+            if (dataKeys.length > 0) {
+              const values = dataKeys.reduce((values, dataKey) => {
+                let value
+                if (numberRegex.test(dataKey)) {
+                  // Read and convert value
+                  value = parseFloat(dataset[dataKey])
+                  // Strip off _number suffix from final key
+                  dataKey = dataKey.replace(numberRegex, '')
+                }
+                else {
+                  // Use string value
+                  value = dataset[dataKey]
+                }
+                
+                values[dataKey] = value
+                return values
+              }, {})
+              // Change arguments to extracted dataset values
+              args = [values]
+            }
+          }
           const stateChanger = Promise.resolve(
+            // Call handler function
             handlersIn[key].apply(this, [ Object.assign({}, this.props, { handlers }) ].concat(args))
           )
           .then(stateChanger => {
@@ -30,9 +60,9 @@ export default function makeMultiOrganism(Parent, cells, { onChange } = {}) {
             if (stateChanger) {
               // Can either be a plain object or a callback to transform the existing state
               this.setState(
-                (prevState) => {
-                  if (typeof(stateChanger) === typeof(stateChanger.call)) { // FIXME for function check?
-                    prevState[cellKey] = stateChanger(prevState[cellKey])
+                (prevState, props) => {
+                  if (typeof(stateChanger) === typeof(stateChanger.call)) { // TODO: better function check?
+                    prevState[cellKey] = stateChanger(prevState[cellKey], props)
                   }
                   else {
                     prevState[cellKey] = stateChanger
@@ -63,7 +93,7 @@ export default function makeMultiOrganism(Parent, cells, { onChange } = {}) {
 
     render() {
       // Render the pure component, passing both props and cells
-      return <Parent props={ this.props } cells={ this.cellsProxy } />
+      return <Parent { ...this.props } cells={ this.cellsProxy } />
     }
   }
 }

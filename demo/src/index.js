@@ -40,7 +40,7 @@ class Demo extends Component {
       <CalculatorOrganism />
       <hr />
       <h3>Multi-celled organism</h3>
-      <SocialOrganism />
+      <SocialOrganism darkMode />
 
       <style>{`
 * {
