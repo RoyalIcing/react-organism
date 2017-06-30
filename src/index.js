@@ -56,7 +56,7 @@ export default (
       }
 
       // Call handler function, props first, then rest of args
-      const stateChanger = handlersIn[key].apply(this, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args))
+      const stateChanger = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args))
       // Check if thenable (i.e. a Promise)
       if (!!stateChanger && (typeof stateChanger.then === typeof Object.assign)) {
         stateChanger.then(stateChanger => {

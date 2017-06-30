@@ -53,7 +53,7 @@ export default function makeMultiOrganism(
 
           // Call handler function, props first, then rest of args
           // Note: that this should only be given its own handlers, as that’s all it knows about
-          const stateChanger = handlersIn[key].apply(this, [ Object.assign({}, this.props, { handlers }) ].concat(args))
+          const stateChanger = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers }) ].concat(args))
 
           // Check if thenable (i.e. a Promise)
           if (!!stateChanger && (typeof stateChanger.then === typeof Object.assign)) {
