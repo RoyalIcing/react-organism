@@ -4,18 +4,18 @@ import Counter from '../components/Counter'
 
 export default makeOrganism(Counter, {
   initial: ({ initialCount = 0 }) => ({ count: initialCount }),
-  _offsetBy: (props, change) => ({ count }) => ({ count: count + change }),
+  offsetBy: (props, change) => ({ count }) => ({ count: count + change }),
   increment: async ({ stride = 20, handlers }) => {
     while (stride > 0) {
       await nextFrame()
-      await handlers._offsetBy(1)
+      await handlers.offsetBy(1)
       stride -= 1
     }
   },
   decrement: async ({ stride = 20, handlers }) => {
     while (stride > 0) {
       await nextFrame()
-      await handlers._offsetBy(-1)
+      await handlers.offsetBy(-1)
       stride -= 1
     }
   }
