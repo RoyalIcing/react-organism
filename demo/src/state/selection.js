@@ -3,8 +3,5 @@ export const initial = () => ({
   selectedPhotoIndex: null
 })
 
-export const selectFriendAtIndex = (props, args) => {
-  console.log('selectFriendAtIndex', JSON.stringify(args))
-  return ({ selectedFriendIndex: args.index })
-}
+export const selectFriendAtIndex = (props, { index }) => ({ selectedFriendIndex: index })
 export const selectPhotoAtIndex = (props, { index }) => ({ selectedPhotoIndex: index })
