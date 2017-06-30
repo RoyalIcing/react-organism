@@ -1,11 +1,6 @@
 import makeOrganism from '../../../src'
+import nextFrame from '../../../src/nextFrame'
 import Counter from '../components/Counter'
-
-const nextFrame = async function() {
-  await new Promise((resolve) => {
-    window.requestAnimationFrame(resolve)
-  })
-}
 
 export default makeOrganism(Counter, {
   initial: ({ initialCount = 0 }) => ({ count: initialCount }),
