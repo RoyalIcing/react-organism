@@ -6,10 +6,9 @@
 
 ## Dead simple React state management to bring pure components alive
 
-- Embraces the existing mechanism of `setState`, but avoids boilerplate
-- Lets you separate state management from rendering
-- Simply export your handlers — no writing `this.setState` or `.bind` again and again
-- Avoids loose strings for identifying actions
+- Embraces the existing functional `setState`, but avoids boilerplate
+- Supports `async` and `await` and easy loading (e.g. `fetch()`)
+- Simply export your handlers — no writing `this.setState` or `.bind` again
 - Easy to write units test for (example coming soon)
 - Dedicated [create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`
 
@@ -181,6 +180,10 @@ export default makeOrganism(Counter, {
 })
 ```
 
+### Automatically extract from `data-` attributes and `<forms>`
+
+Example coming soon
+
 ### Serialization: Local storage
 
 ```js
@@ -270,7 +273,18 @@ import CounterOrganism from './organisms/Counter'
 
 ### Multicelled Organisms
 
+Example coming soon.
 
+
+## Why not Redux?
+
+- Like Redux, separate your state management from rendering
+- Unlike Redux, avoid loose strings for identifying actions
+- Easier to reuse functionality, as action handlers are totally encapsulated
+- No ability to reach across to the other side of your state tree
+- Encourages composition of components
+- Supports `async` and `await` in any action
+- No `switch` statements
 
 
 [build-badge]: https://img.shields.io/travis/RoyalIcing/react-organism/master.png?style=flat-square
