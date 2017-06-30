@@ -17,7 +17,8 @@
     "test": "nwb test-react",
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
-    "now:deploy": "yarn run build && cd demo/dist && now"
+    "now:deploy": "yarn run build && cd demo/dist && now",
+    "explore-bundle": "source-map-explorer"
   },
   "dependencies": {},
   "peerDependencies": {
@@ -26,7 +27,8 @@
   "devDependencies": {
     "nwb": "0.16.x",
     "react": "^15.6.1",
-    "react-dom": "^15.6.1"
+    "react-dom": "^15.6.1",
+    "source-map-explorer": "^1.3.3"
   },
   "author": "",
   "homepage": "",
