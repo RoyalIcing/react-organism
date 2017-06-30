@@ -1,7 +1,14 @@
 import React, { PureComponent } from 'react'
 
 // Returns a new stateful component, given the specified state handlers and a pure component to render with
-export default (Pure, handlersIn, { onChange } = {}) => class Organism extends PureComponent {
+export default (
+  Pure,
+  handlersIn,
+  {
+    onChange,
+    adjustArgs
+  } = {}
+) => class Organism extends PureComponent {
   state = Object.assign(
     { loadError: null },
     handlersIn.initial(this.props)
@@ -44,12 +51,14 @@ export default (Pure, handlersIn, { onChange } = {}) => class Organism extends P
     }
 
     out[key] = (...args) => {
-      // Call handler, binding this-context and passing props and arguments (e.g. event) along
-      //const stateChanger = handlersIn[key].apply(this, [ this.props ].concat(args))
+      if (adjustArgs) {
+        args = adjustArgs(args)
+      }
 
+      // Call handler function, props first, then rest of args
       const stateChanger = handlersIn[key].apply(this, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args))
-      // Check if Promise
-      if (typeof stateChanger.then === typeof Object.assign) {
+      // Check if thenable (i.e. a Promise)
+      if (!!stateChanger && (typeof stateChanger.then === typeof Object.assign)) {
         stateChanger.then(stateChanger => {
           // Handlers can optionally change the state
           stateChanger && this.changeState(stateChanger)
