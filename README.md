@@ -22,6 +22,7 @@
 - [Animation](#animation)
 - [Serialization: Local storage](#serialization-local-storage)
 - [Separate and reuse state handlers](#separate-and-reuse-state-handlers)
+- [Multicelled organisms](#multicelled-organisms)
 
 ### Basic
 
@@ -156,29 +157,24 @@ export default makeOrganism(Calculator, {
 ### Animation
 
 ```js
-import makeOrganism from '../../../src'
+import makeOrganism from 'react-organism'
+import nextFrame from 'react-organism/lib/nextFrame'
 import Counter from '../components/Counter'
-
-const waitNextFrame = async function() {
-  await new Promise((resolve) => {
-    window.requestAnimationFrame(resolve)
-  })
-}
 
 export default makeOrganism(Counter, {
   initial: ({ initialCount = 0 }) => ({ count: initialCount }),
-  _offsetBy: (props, change) => ({ count }) => ({ count: count + change }),
+  offsetBy: (props, change) => ({ count }) => ({ count: count + change }),
   increment: async ({ stride = 20, handlers }) => {
     while (stride > 0) {
-      await waitNextFrame()
-      await handlers._offsetBy(1)
+      await nextFrame()
+      await handlers.offsetBy(1)
       stride -= 1
     }
   },
   decrement: async ({ stride = 20, handlers }) => {
     while (stride > 0) {
       await waitNextFrame()
-      await handlers._offsetBy(-1)
+      await handlers.offsetBy(-1)
       stride -= 1
     }
   }
@@ -198,6 +194,10 @@ export default makeOrganism(Counter, {
   initial: ({ initialCount = 0 }) => ({ count: initialCount }),
   load: async (props, prevProps) => {
     if (!prevProps) {
+      // Try commenting out:
+      /* throw (new Error('Oops!')) */
+
+      // Load previously stored state, if present
       return await JSON.parse(localStorage.getItem(localStorageKey))
     }
   },
@@ -205,6 +205,7 @@ export default makeOrganism(Counter, {
   decrement: ({ stride = 1 }) => ({ count }) => ({ count: count - stride })
 }, {
   onChange(state) {
+    // When state changes, save in local storage
     localStorage.setItem(localStorageKey, JSON.stringify(state))
   }
 })
@@ -266,6 +267,10 @@ import CounterOrganism from './organisms/Counter'
   )
 }
 ```
+
+### Multicelled Organisms
+
+
 
 
 [build-badge]: https://img.shields.io/travis/RoyalIcing/react-organism/master.png?style=flat-square

@@ -7,7 +7,10 @@ export default makeOrganism(Counter, {
   initial: ({ initialCount = 13 }) => ({ count: initialCount }),
   load: async (props, prevProps) => {
     if (!prevProps) {
-      //throw (new Error('Oops!'));
+      // Try commenting out:
+      /* throw (new Error('Oops!')) */
+
+      // Load previously stored state, if present
       return await JSON.parse(localStorage.getItem(localStorageKey))
     }
   },
@@ -15,6 +18,7 @@ export default makeOrganism(Counter, {
   decrement: ({ stride = 1 }) => ({ count }) => ({ count: count - stride })
 }, {
   onChange(state) {
+    // When state changes, save in local storage
     localStorage.setItem(localStorageKey, JSON.stringify(state))
   }
 })
