@@ -29,6 +29,7 @@ export default function argsExtractDOMValues(args) {
         args = [values]
       }
       else {
+        // Read values from data- attributes
         const values = dataKeys.reduce((values, dataKey) => {
           let value
           if (numberRegex.test(dataKey)) {
