@@ -1,6 +1,6 @@
 {
   "name": "react-organism",
-  "version": "0.2.0b4",
+  "version": "0.2.0b5",
   "description": "Separate React state in a dead simple functional way",
   "main": "lib/index.js",
   "module": "es/index.js",
