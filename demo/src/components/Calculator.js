@@ -14,7 +14,7 @@ export default function Calculator({
       <input value={ value } onChange={ changeValue } />
       <button onClick={ double } children='Double' />
       <button onClick={ add3 } children='Add 3' />
-      <button onClick={ initial } children='reset' />
+      <button onClick={ initial } children='Reset' />
     </div>
   )
 }

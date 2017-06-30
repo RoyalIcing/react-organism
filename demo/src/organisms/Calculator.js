@@ -8,6 +8,6 @@ export default makeOrganism(Calculator, {
   // changeValue: (props, { target: { value: newValue } }) => ({ value: previousValue }) => ({
   //   value: newValue && (parseInt(newValue, 10) || previousValue)
   // }),
-  double: () => ({ value }) => ({ value: value * 2 }),
-  add3: () => ({ value }) => ({ value: value + 3 })
+  double: () => ({ value }) => ({ value: (value || 0) * 2 }),
+  add3: () => ({ value }) => ({ value: (value || 0) + 3 })
 })
