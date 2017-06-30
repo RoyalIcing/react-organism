@@ -1,5 +1,3 @@
-export default async function nextFrame() {
-  await new Promise((resolve) => {
-    window.requestAnimationFrame(resolve)
-  })
-}
+export default () => new Promise((resolve) => {
+  window.requestAnimationFrame(resolve)
+})
