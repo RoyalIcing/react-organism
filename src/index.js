@@ -28,8 +28,8 @@ export default (
     if (handlersIn.load) {
       // Wrap in Promise to safely catch any errors thrown by `load`
       Promise.resolve(true).then(() => handlersIn.load(nextProps, prevProps, { handlers: this.handlers }))
-      .then(updater => updater && this.setState(updater))
-      .catch(error => this.setState({ loadError: error }))
+        .then(updater => updater && this.changeState(updater))
+        .catch(error => this.setState({ loadError: error }))
     }
   }
 

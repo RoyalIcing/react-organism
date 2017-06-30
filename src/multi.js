@@ -34,6 +34,27 @@ export default function makeMultiOrganism(
       )
     }
 
+    // Uses `load` handler, if present, to asynchronously load initial state
+    loadAsync(nextProps, prevProps) {
+      Object.keys(cells).map(cellKey => {
+        const handlersIn = cells[cellKey]
+        if (handlersIn.load) {
+          // Wrap in Promise to safely catch any errors thrown by `load`
+          Promise.resolve(true).then(() => handlersIn.load(nextProps, prevProps, { handlers: this.cellsProxy[cellKey].handlers }))
+            .then(updater => updater && this.changeStateForCell(updater, cellKey))
+            .catch(error => this.setState({ loadError: error }))
+        }
+      })
+    }
+
+    componentDidMount() {
+      this.loadAsync(this.props, null)
+    }
+
+    componentWillReceiveProps(nextProps) {
+      this.loadAsync(nextProps, this.props)
+    }
+
     cellsProxy = Object.keys(cells).reduce((cellsProxy, cellKey) => {
       const handlersIn = cells[cellKey]
       const handlers = Object.keys(handlersIn).reduce((out, key) => {

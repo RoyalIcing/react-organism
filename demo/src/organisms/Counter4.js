@@ -1,7 +1,7 @@
 import makeOrganism from '../../../src'
 import Counter from '../components/Counter'
 
-const waitNextFrame = async function() {
+const nextFrame = async function() {
   await new Promise((resolve) => {
     window.requestAnimationFrame(resolve)
   })
@@ -12,14 +12,14 @@ export default makeOrganism(Counter, {
   _offsetBy: (props, change) => ({ count }) => ({ count: count + change }),
   increment: async ({ stride = 20, handlers }) => {
     while (stride > 0) {
-      await waitNextFrame()
+      await nextFrame()
       await handlers._offsetBy(1)
       stride -= 1
     }
   },
   decrement: async ({ stride = 20, handlers }) => {
     while (stride > 0) {
-      await waitNextFrame()
+      await nextFrame()
       await handlers._offsetBy(-1)
       stride -= 1
     }
