@@ -1,5 +1,6 @@
 import React from 'react'
 import makeMultiCelledOrganism from '../../../src/multi'
+import argsExtractDOMValues from '../../../src/argsExtractDOMValues'
 import PhotosList from '../components/PhotosList'
 import FriendsList from '../components/FriendsList'
 import Notifications from '../components/Notifications'
@@ -45,4 +46,6 @@ export default makeMultiCelledOrganism(Social, {
   friends,
   photos,
   selection
+}, {
+  adjustArgs: argsExtractDOMValues
 })
