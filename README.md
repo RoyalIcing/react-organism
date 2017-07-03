@@ -4,7 +4,7 @@
 [![npm package][npm-badge]][npm]
 [![Coveralls][coveralls-badge]][coveralls]
 
-## Dead simple React state management to bring pure components alive
+**Dead simple React state management to bring pure components alive**
 
 - Embraces the existing functional `setState`, but avoids boilerplate
 - Supports `async` and `await` and easy loading (e.g. `fetch()`)
@@ -12,7 +12,19 @@
 - Easy to write units test for (example coming soon)
 - Dedicated [create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`
 
-## Example — [Demo code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
+## Installation
+
+```
+npm i react-organism --save
+```
+
+## Demos
+
+- [Todo List](https://codesandbox.io/s/yME5Y3Yz)
+- [User Stories Maker](https://codesandbox.io/s/xkZ5ZONl)
+— [Events, animation, fetch](https://react-organism.now.sh) · [code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
+
+## Usage
 
 - [Basic](#basic)
 - [Using props](#using-props)
