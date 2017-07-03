@@ -4,7 +4,13 @@ export default function extractFromDOM(args) {
   // If being passed an event with DOM element that has a dataset
   if (args[0] && args[0].target && args[0].target.dataset) {
     const event = args[0]
-    const { dataset } = event.target
+    const { target } = event
+    let values = {
+      value: target.value,
+      checked: target.checked
+    }
+
+    const { dataset } = target
     const dataKeys = Object.keys(dataset)
     // Extract values from dataset
     if (dataKeys.length > 0) {
@@ -14,7 +20,6 @@ export default function extractFromDOM(args) {
 
         const reset = !!dataset.reset // data-reset
         const { elements } = event.target
-        let values = {}
         // Loop through form elements https://stackoverflow.com/a/19978872
         for (let i = 0, element; element = elements[i++];) {
             // Read value from <input>
@@ -24,13 +29,10 @@ export default function extractFromDOM(args) {
               element.value = ''
             }
         }
-        
-        // Change arguments to extracted dataset values
-        args = [values]
       }
+      // Read values from data- attributes
       else {
-        // Read values from data- attributes
-        const values = dataKeys.reduce((values, dataKey) => {
+        dataKeys.forEach(dataKey => {
           let value
           if (numberRegex.test(dataKey)) {
             // Read and convert value
@@ -44,11 +46,11 @@ export default function extractFromDOM(args) {
           }
           
           values[dataKey] = value
-          return values
-        }, {})
-        // Change arguments to extracted dataset values
-        args = [values]
+        })
       }
+
+      // Change arguments to extracted dataset values
+      args = [values]
     }
   }
 
