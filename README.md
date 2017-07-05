@@ -22,7 +22,7 @@ npm i react-organism --save
 
 - [Todo List](https://codesandbox.io/s/yME5Y3Yz)
 - [User Stories Maker](https://codesandbox.io/s/xkZ5ZONl)
-— [Events, animation, fetch](https://react-organism.now.sh) · [code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
+- [Events, animation, fetch](https://react-organism.now.sh) · [code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
 
 ## Usage
 
