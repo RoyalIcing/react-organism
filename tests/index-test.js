@@ -41,7 +41,7 @@ describe('makeOrganism', () => {
       decrement: () => ({ count }) => ({ count: count - 1 })
     })
     const $ = (selector) => node.querySelector(selector)
-    render(<CounterOrganism initialCount={ 2 } />, node, async () => {
+    render(<CounterOrganism initialCount={ 2 } />, node, () => {
       expect(node.innerHTML).toContain('2')
 
       // Click increment
