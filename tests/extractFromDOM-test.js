@@ -84,9 +84,13 @@ describe('makeOrganism', () => {
       $('#urlField').value = 'https://via.placeholder.com/350x150'
       ReactTestUtils.Simulate.change($('#urlField'))
 
+      // Should extract data using named field
       ReactTestUtils.Simulate.submit($('#addPhotoForm'))
       expect($('#photos').innerHTML).toContain('https://via.placeholder.com/350x150')
+      // Should reset fields if data-reset present
+      expect($('#urlField').value).toBe('')
 
+      // Should extract data- attributes
       expect($('#selectionStatus').innerHTML).toContain('No photo selected')
       ReactTestUtils.Simulate.click($('#photo-0'))
       expect($('#selectionStatus').innerHTML).toContain('Selected 0')
