@@ -12,46 +12,43 @@ export default function extractFromDOM(args) {
 
     const { dataset } = target
     const dataKeys = Object.keys(dataset)
-    // Extract values from dataset
-    if (dataKeys.length > 0) {
-      // If submitting a form and data-extract is present on the <form>
-      if (event.type === 'submit' && dataset.extract) {
-        event.preventDefault()
+    // If submitting a form and data-extract is present on the <form>
+    if (event.type === 'submit' && dataset.extract) {
+      event.preventDefault()
 
-        const reset = !!dataset.reset // data-reset
-        const { elements } = event.target
-        // Loop through form elements https://stackoverflow.com/a/19978872
-        for (let i = 0, element; element = elements[i++];) {
-            // Read value from <input>
-            values[element.name] = element.value
-            if (reset) {
-              // Reset <input> value
-              element.value = ''
-            }
-        }
-      }
-      // Read values from data- attributes
-      else {
-        dataKeys.forEach(dataKey => {
-          let value
-          if (numberRegex.test(dataKey)) {
-            // Read and convert value
-            value = parseFloat(dataset[dataKey])
-            // Strip off _number suffix from final key
-            dataKey = dataKey.replace(numberRegex, '')
+      const reset = !!dataset.reset // data-reset
+      const { elements } = event.target
+      // Loop through form elements https://stackoverflow.com/a/19978872
+      for (let i = 0, element; element = elements[i++];) {
+          // Read value from <input>
+          values[element.name] = element.value
+          if (reset) {
+            // Reset <input> value
+            element.value = ''
           }
-          else {
-            // Use string value
-            value = dataset[dataKey]
-          }
-          
-          values[dataKey] = value
-        })
       }
-
-      // Change arguments to extracted dataset values
-      args = [values]
     }
+    // Read values from data- attributes
+    else {
+      dataKeys.forEach(dataKey => {
+        let value
+        if (numberRegex.test(dataKey)) {
+          // Read and convert value
+          value = parseFloat(dataset[dataKey])
+          // Strip off _number suffix from final key
+          dataKey = dataKey.replace(numberRegex, '')
+        }
+        else {
+          // Use string value
+          value = dataset[dataKey]
+        }
+        
+        values[dataKey] = value
+      })
+    }
+
+    // Change arguments to extracted dataset values
+    args = [values]
   }
 
   return args
