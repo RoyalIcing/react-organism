@@ -50,6 +50,27 @@ export default makeOrganism(Counter, {
 })
 ```
 
+```js
+// components/Counter.js
+import React, { Component } from 'react'
+
+export default function Counter({
+  count,
+  handlers: {
+    increment,
+    decrement
+  }
+}) {
+  return (
+    <div>
+      <button onClick={ decrement } children='−' />
+      <span>{ count }</span>
+      <button onClick={ increment } children='+' />
+    </div>
+  )
+}
+```
+
 ### Using props
 
 The handlers can easily use props, which are always passed as the first argument
@@ -241,27 +262,6 @@ export const initial = () => ({
 
 export const increment = () => ({ count }) => ({ count: count + 1 })
 export const decrement = () => ({ count }) => ({ count: count - 1 })
-```
-
-```js
-// components/Counter.js
-import React, { Component } from 'react'
-
-export default function Counter({
-  count,
-  handlers: {
-    increment,
-    decrement
-  }
-}) {
-  return (
-    <div>
-      <button onClick={ decrement } children='−' />
-      <span>{ count }</span>
-      <button onClick={ increment } children='+' />
-    </div>
-  )
-}
 ```
 
 ```js
