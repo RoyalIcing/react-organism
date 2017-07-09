@@ -301,6 +301,9 @@ Example coming soon.
 ## API
 
 ### `makeOrganism(PureComponent, StateHandlers, options?)`
+```js
+import makeOrganism from 'react-organism'
+```
 Creates a smart component, rendering using React component `PureComponent`, and managing state using `StateHandlers`.
 
 #### `PureComponent`
