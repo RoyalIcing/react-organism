@@ -26,7 +26,10 @@
   - [Separate and reuse state handlers](#separate-and-reuse-state-handlers)
   - [Multicelled organisms](#multicelled-organisms)
 - [API](#api)
-  - [`makeOrganism(PureComponent, StateHandlers, options)`](#makeorganismpurecomponent-statehandlers-options)
+  - [`makeOrganism(PureComponent, StateFunctions, options)`]
+  (#makeorganismpurecomponent-statefunctions-options)
+  - [State functions](#state-functions)
+  - [Argument enhancers](#argument-enhancers)
 - [Why not Redux?](#why-not-redux)
 
 ## Installation
@@ -300,25 +303,47 @@ Example coming soon.
 
 ## API
 
-### `makeOrganism(PureComponent, StateHandlers, options?)`
+### `makeOrganism(PureComponent, StateFunctions, options?)`
 ```js
 import makeOrganism from 'react-organism'
 ```
-Creates a smart component, rendering using React component `PureComponent`, and managing state using `StateHandlers`.
+Creates a smart component, rendering using React component `PureComponent`, and managing state using `StateFunctions`.
 
 #### `PureComponent`
 A React component, usually a pure functional component. This component is passed as its props:
 
 - The props passed to the smart component, combined with
 - The current state, combined with
-- `handlers` which correspond to each function in `StateHandlers` and are ready to be passed to e.g. `onClick`, `onChange`, etc.
+- `handlers` which correspond to each function in `StateFunctions` and are ready to be passed to e.g. `onClick`, `onChange`, etc.
 - `loadError?`: Error produced by the `load` handler
 - `handlerError?`: Error produced by any other handler
 
-#### `StateHandlers`
-Object with functional handlers. You may pass an object of functions. For organization you can also declare a separate file module with each handler function `export`ed out which you then bring in using `import * as StateHandlers from '...'`.
+#### `StateFunctions`
+Object with functional handlers. See [state functions below](#state-functions).
 
-Each handler is passed the current props first, followed by any arguments passed at the call site, i.e. `(props, ...args)`.
+Either pass a object directly with each function, or create a separate file with each handler function `export`ed out, and then bring in using `import * as StateFunctions from '...'`.
+
+#### `options`
+
+##### `adjustArgs?(args: array) => newArgs: array`
+
+Used to enhance handlers. See [built-in handlers below](#argument-enhancers).
+
+##### `onChange?(state)`
+
+Called after the state has changed, making it ideal for saving the state somewhere (e.g. Local Storage).
+
+
+### State functions
+
+Your state is handled by a collection of functions. Each function is pure: they can only rely on the props and state passed to them. Functions return the new state, either immediately or asynchronously.
+
+Each handler is passed the current props first, followed by the called arguments:
+- `(props, event)`: most event handlers, e.g. `onClick`, `onChange`
+- `(props, first, second)`
+- `(props, ...args)`: get all arguments passed
+- `(props)`: ignore any arguments
+- `()`: ignore props and arguments
 
 Handlers must return one of the following:
 - An object with new state changes, a la React’s `setState(changes)`.
@@ -329,10 +354,10 @@ Handlers must return one of the following:
 
 There are some handlers for special tasks, specifically:
 
-##### `initial(props) => object` (required)
+#### `initial(props) => object` (required)
 Return initial state to start off with, a la React’s `initialState`. Passed props.
 
-##### `load(props: object, prevProps: object?, { handlers: object }) => object | Promise<object> | void` (optional)
+#### `load(props: object, prevProps: object?, { handlers: object }) => object | Promise<object> | void` (optional)
 Passed the current props and the previous props. Return new state, a Promise returning new state, or nothing.
 
 If this is the first time loaded or if being reloaded, then `prevProps` is `null`.
@@ -348,20 +373,10 @@ export const load = async ({ id }, prevProps) => {
 
 Your `load` handler will be called in React’s lifecycle: `componentDidMount` and `componentWillReceiveProps`.
 
-#### `options`
 
-##### `adjustArgs?(args: array) => newArgs: array`
+### Argument enhancers
 
-Used to enhance handlers. See [built-in handlers below](#built-in-argument-enhancers).
-
-##### `onChange?(state)`
-
-Called after the state has changed, making it ideal for saving the state somewhere (e.g. Local Storage).
-
-
-### Built-in argument enhancers
-
-Built in enhancers:
+Handler arguments can be adjusted, to cover many common cases. Pass them to the `adjustArgs` option. The following enhancers are built-in:
 
 #### `extractFromDOM(args: array) => newArgs: array`
 ```js
