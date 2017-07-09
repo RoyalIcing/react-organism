@@ -307,7 +307,13 @@ import makeOrganism from 'react-organism'
 Creates a smart component, rendering using React component `PureComponent`, and managing state using `StateHandlers`.
 
 #### `PureComponent`
-A React component, usually a pure functional component. Its props are a combination of the original props, the current state, and `handlers` which correspond to each function in `StateHandlers` and are ready to be passed to e.g. `onClick`, `onChange`, etc.
+A React component, usually a pure functional component. This component is passed as its props:
+
+- The props passed to the smart component, combined with
+- The current state, combined with
+- `handlers` which correspond to each function in `StateHandlers` and are ready to be passed to e.g. `onClick`, `onChange`, etc.
+- `loadError?`: Error produced by the `load` handler
+- `handlerError?`: Error produced by any other handler
 
 #### `StateHandlers`
 Object with functional handlers. You may pass an object of functions. For organization you can also declare a separate file module with each handler function `export`ed out which you then bring in using `import * as StateHandlers from '...'`.
