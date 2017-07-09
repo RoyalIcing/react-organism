@@ -8,6 +8,7 @@
 
 - Embraces the existing functional `setState`, but avoids boilerplate (no writing `this.setState()` or `.bind` again)
 - Supports `async` and `await` and easy loading (e.g. `fetch()`)
+- Tiny: 1.18KB gzipped (2.8KB uncompressed)
 - Easy to write units test for (example coming soon)
 - Dedicated [create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`
 
