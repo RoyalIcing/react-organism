@@ -26,6 +26,7 @@
   - [Separate and reuse state handlers](#separate-and-reuse-state-handlers)
   - [Multicelled organisms](#multicelled-organisms)
 - [API](#api)
+  - [`makeOrganism(PureComponent, StateHandlers, options)`](#makeorganismpurecomponent-statehandlers-options)
 - [Why not Redux?](#why-not-redux)
 
 ## Installation
