@@ -25,6 +25,7 @@
   - [Serialization: Local storage](#serialization-local-storage)
   - [Separate and reuse state handlers](#separate-and-reuse-state-handlers)
   - [Multicelled organisms](#multicelled-organisms)
+- [API](#api)
 - [Why not Redux?](#why-not-redux)
 
 ## Installation
@@ -294,6 +295,72 @@ import CounterOrganism from './organisms/Counter'
 ### Multicelled Organisms
 
 Example coming soon.
+
+
+## API
+
+### `makeOrganism(PureComponent, StateHandlers, options?)`
+Creates a smart component, rendering using React component `PureComponent`, and managing state using `StateHandlers`.
+
+#### `PureComponent`
+A React component, usually a pure functional component. The original props are passed in and combined with the current state, as well as `handlers` which correspond to each function in `StateHandlers`.
+
+#### `StateHandlers`
+Object with functional handlers.
+
+Each handler is passed the current props, followed by any arguments passed when the handler was called, i.e. `(props, ...args)`.
+
+Handlers must return one of the following:
+- An object with new state changers, a la React’s `setState`.
+- A function accepting the previous state and current props, and returns the new state
+- A promise resolving to any of the above (object / function), which will then be used to update the state. Uncaught errors are stored in state under the key `handlerError`. Alternatively, promises may be written using the `async`/`await` syntax.
+- An array of any of the above (object / function / promise).
+- Or optionally, nothing.
+
+There are some handlers for special tasks, specifically:
+
+##### `initial(props) => object` (required)
+Return initial state to start off with, a la React’s `initialState`. Passed props.
+
+##### `load(props: object, prevProps: object?, { handlers: object }) => object | Promise<object> | void` (optional)
+Passed the current props and the previous props. Return new state, a Promise returning new state, or nothing.
+
+If this is the first time loaded or reloading, then `prevProps` is `null`.
+
+Usual pattern is to check for either `prevProps` being `null` or the prop of interest changing:
+```js
+export const load = async ({ id }, prevProps) => {
+  if (!prevProps || id !== prevProps.id) {
+    return { item: await loadItem(id) }
+  }
+}
+```
+
+Your `load` handler will be called in React’s lifecycle: `componentDidMount` and `componentWillReceiveProps`.
+
+#### `options`
+
+##### `adjustArgs?(args: array) => newArgs: array`
+
+Used to enhance handlers. See [built-in handlers below](#built-in-argument-enhancers).
+
+##### `onChange?(state)`
+
+Called after the state has changed, making it ideal for saving the state somewhere (e.g. Local Storage).
+
+
+### Built-in argument enhancers
+
+Built in enhancers:
+
+#### `extractFromDOM(args: array) => newArgs: array`
+```js
+import extractFromDOM from 'react-organism/lib/adjustArgs/extractFromDOM'
+```
+
+Extract values from DOM, specifically:
+- For events as the first argument, extracts `value`, `checked`, and `name` from `event.target`. Additionally, if target has `data-` attributes, these will also be extracted in camelCase from its [`dataset`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/dataset). Suffixing `data-` attributes with `_number` will convert value to a number (instead of string) using `parseFloat`, and drop the suffix. Handler will receive these extracted values in an object as the first argument, followed by the original arguments.
+- For `submit` events, extracts values of `<input>` fields in a `<form>`. Handler will receive the values keyed by the each input’s `name` attribute, followed by the original arguments. Pass the handler to the `onSubmit` prop of the `<form>`. Form must have `data-extract` attribute present. To clear the form after submit, add `data-reset` to the form.
 
 
 ## Why not Redux?
