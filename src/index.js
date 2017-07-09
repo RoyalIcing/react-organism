@@ -56,22 +56,25 @@ export default (
       }
 
       // Call handler function, props first, then rest of args
-      const stateChanger = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args))
-      // Check if thenable (i.e. a Promise)
-      if (!!stateChanger && (typeof stateChanger.then === typeof Object.assign)) {
-        stateChanger.then(stateChanger => {
-          // Handlers can optionally change the state
+      const result = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args));
+      // Can return multiple state changers, ensure array, and then loop through
+      [].concat(result).forEach(stateChanger => {
+        // Check if thenable (i.e. a Promise)
+        if (!!stateChanger && (typeof stateChanger.then === typeof Object.assign)) {
+          stateChanger.then(stateChanger => {
+            // Handlers can optionally change the state
+            stateChanger && this.changeState(stateChanger)
+          })
+          .catch(error => {
+            this.setState({ handlerError: error })
+          })
+        }
+        // Otherwise, change state immediately
+        // Required for things like <textarea> onChange to keep cursor in correct position
+        else {
           stateChanger && this.changeState(stateChanger)
-        })
-        .catch(error => {
-          this.setState({ handlerError: error })
-        })
-      }
-      // Otherwise, change state immediately
-      // Required for things like <textarea> onChange to keep cursor in correct position
-      else {
-        stateChanger && this.changeState(stateChanger)
-      }
+        }
+      })
     }
     return out
   }, {})
