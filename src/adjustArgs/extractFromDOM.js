@@ -7,7 +7,8 @@ export default function extractFromDOM(args) {
     const { target } = event
     let values = {
       value: target.value,
-      checked: target.checked
+      checked: target.checked,
+      name: target.name
     }
 
     const { dataset } = target
