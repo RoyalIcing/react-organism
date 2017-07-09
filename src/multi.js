@@ -74,23 +74,25 @@ export default function makeMultiOrganism(
 
           // Call handler function, props first, then rest of args
           // Note: that this should only be given its own handlers, as that’s all it knows about
-          const stateChanger = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers }) ].concat(args))
-
-          // Check if thenable (i.e. a Promise)
-          if (!!stateChanger && (typeof stateChanger.then === typeof Object.assign)) {
-            stateChanger
-              .then(stateChanger => {
-                stateChanger && this.changeStateForCell(stateChanger, cellKey)
-              })
-              .catch(error => {
-                this.setState({ handlerError: error })
-              })
-          }
-          // Otherwise, change state immediately
-          // Required for things like <textarea> onChange to keep cursor in correct position
-          else {
-            stateChanger && this.changeStateForCell(stateChanger, cellKey)
-          }
+          const stateChanger = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers }) ].concat(args));
+          // Can return multiple state changers, ensure array, and then loop through
+          [].concat(result).forEach(stateChanger => {
+            // Check if thenable (i.e. a Promise)
+            if (!!stateChanger && (typeof stateChanger.then === typeof Object.assign)) {
+              stateChanger
+                .then(stateChanger => {
+                  stateChanger && this.changeStateForCell(stateChanger, cellKey)
+                })
+                .catch(error => {
+                  this.setState({ handlerError: error })
+                })
+            }
+            // Otherwise, change state immediately
+            // Required for things like <textarea> onChange to keep cursor in correct position
+            else {
+              stateChanger && this.changeStateForCell(stateChanger, cellKey)
+            }
+          })
         }
         return out
       }, {})
