@@ -26,8 +26,7 @@
   - [Separate and reuse state handlers](#separate-and-reuse-state-handlers)
   - [Multicelled organisms](#multicelled-organisms)
 - [API](#api)
-  - [`makeOrganism(PureComponent, StateFunctions, options)`]
-  (#makeorganismpurecomponent-statefunctions-options)
+  - [`makeOrganism(PureComponent, StateFunctions, options)`](#makeorganismpurecomponent-statefunctions-options)
   - [State functions](#state-functions)
   - [Argument enhancers](#argument-enhancers)
 - [Why not Redux?](#why-not-redux)
