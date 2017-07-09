@@ -48,8 +48,8 @@ export default function extractFromDOM(args) {
       })
     }
 
-    // Change arguments to extracted dataset values
-    args = [values]
+    // Place extracted dataset values first, followed by original arguments
+    args = [values].concat(args)
   }
 
   return args
