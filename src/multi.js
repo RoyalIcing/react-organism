@@ -10,6 +10,7 @@ export default function makeMultiOrganism(
 ) {
   return class OrganismMulticelled extends React.Component {
     state = Object.keys(cells).reduce((state, cellKey) => {
+      // Grab each cell’s initial value
       state[cellKey] = cells[cellKey].initial(this.props)
       return state
     }, {})
