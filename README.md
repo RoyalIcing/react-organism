@@ -304,17 +304,17 @@ Example coming soon.
 Creates a smart component, rendering using React component `PureComponent`, and managing state using `StateHandlers`.
 
 #### `PureComponent`
-A React component, usually a pure functional component. The original props are passed in and combined with the current state, as well as `handlers` which correspond to each function in `StateHandlers`.
+A React component, usually a pure functional component. Its props are a combination of the original props, the current state, and `handlers` which correspond to each function in `StateHandlers` and are ready to be passed to e.g. `onClick`, `onChange`, etc.
 
 #### `StateHandlers`
-Object with functional handlers.
+Object with functional handlers. You may pass an object of functions. For organization you can also declare a separate file module with each handler function `export`ed out which you then bring in using `import * as StateHandlers from '...'`.
 
-Each handler is passed the current props, followed by any arguments passed when the handler was called, i.e. `(props, ...args)`.
+Each handler is passed the current props first, followed by any arguments passed at the call site, i.e. `(props, ...args)`.
 
 Handlers must return one of the following:
-- An object with new state changers, a la React’s `setState`.
-- A function accepting the previous state and current props, and returns the new state
-- A promise resolving to any of the above (object / function), which will then be used to update the state. Uncaught errors are stored in state under the key `handlerError`. Alternatively, promises may be written using the `async`/`await` syntax.
+- An object with new state changes, a la React’s `setState(changes)`.
+- A function accepting the previous state and current props, and returns the new state, a la React’s `setState((prevState, props) => changes)`.
+- A promise resolving to any of the above (object / function), which will then be used to update the state. Uncaught errors are stored in state under the key `handlerError`. Alternatively, your handler can use the `async`/`await` syntax.
 - An array of any of the above (object / function / promise).
 - Or optionally, nothing.
 
@@ -326,9 +326,9 @@ Return initial state to start off with, a la React’s `initialState`. Passed pr
 ##### `load(props: object, prevProps: object?, { handlers: object }) => object | Promise<object> | void` (optional)
 Passed the current props and the previous props. Return new state, a Promise returning new state, or nothing.
 
-If this is the first time loaded or reloading, then `prevProps` is `null`.
+If this is the first time loaded or if being reloaded, then `prevProps` is `null`.
 
-Usual pattern is to check for either `prevProps` being `null` or the prop of interest changing:
+Usual pattern is to check for either `prevProps` being `null` or if the prop of interest has changed from its previous value:
 ```js
 export const load = async ({ id }, prevProps) => {
   if (!prevProps || id !== prevProps.id) {
