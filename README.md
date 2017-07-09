@@ -6,11 +6,25 @@
 
 **Dead simple React state management to bring pure components alive**
 
-- Embraces the existing functional `setState`, but avoids boilerplate
+- Embraces the existing functional `setState`, but avoids boilerplate (no writing `this.setState()` or `.bind` again)
 - Supports `async` and `await` and easy loading (e.g. `fetch()`)
-- Simply export your handlers — no writing `this.setState` or `.bind` again
 - Easy to write units test for (example coming soon)
 - Dedicated [create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`
+
+#### Table of contents
+
+- [Installation](#installation)
+- [Demos](#demos)
+- [Usage](#usage)
+  - [Basic](#basic)
+  - [Using props](#using-props)
+  - [Async & promises](#async)
+  - [Handling events](#handling-events)
+  - [Animation](#animation)
+  - [Serialization: Local storage](#serialization-local-storage)
+  - [Separate and reuse state handlers](#separate-and-reuse-state-handlers)
+  - [Multicelled organisms](#multicelled-organisms)
+- [Why not Redux?](#why-not-redux)
 
 ## Installation
 
@@ -26,15 +40,6 @@ npm i react-organism --save
 - [React Cheat Sheet](https://react-cheat.now.sh/) · [code](https://github.com/BurntCaramel/react-cheat)
 
 ## Usage
-
-- [Basic](#basic)
-- [Using props](#using-props)
-- [Async & promises](#async)
-- [Handling events](#handling-events)
-- [Animation](#animation)
-- [Serialization: Local storage](#serialization-local-storage)
-- [Separate and reuse state handlers](#separate-and-reuse-state-handlers)
-- [Multicelled organisms](#multicelled-organisms)
 
 ### Basic
 
