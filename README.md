@@ -8,7 +8,7 @@
 
 - Embraces the existing functional `setState`, but avoids boilerplate (no writing `this.setState()` or `.bind` again)
 - Supports `async` and `await` and easy loading (e.g. `fetch()`)
-- Tiny: 1.18KB gzipped (2.8KB uncompressed)
+- Tiny: [1.18KB gzipped (2.8KB uncompressed)](http://closure-compiler.appspot.com/home#code%3D%252F%252F%2520%253D%253DClosureCompiler%253D%253D%250A%252F%252F%2520%2540output_file_name%2520default.js%250A%252F%252F%2520%2540compilation_level%2520SIMPLE_OPTIMIZATIONS%250A%252F%252F%2520%2540code_url%2520https%253A%252F%252Funpkg.com%252Freact-organism%250A%252F%252F%2520%253D%253D%252FClosureCompiler%253D%253D%250A%250A'use%2520strict'%253B%250A)
 - Easy to write units test for (example coming soon)
 - Dedicated [create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`
 
