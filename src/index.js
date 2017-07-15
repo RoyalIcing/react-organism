@@ -27,7 +27,7 @@ export default (
   loadAsync(nextProps, prevProps) {
     if (handlersIn.load) {
       // Wrap in Promise to safely catch any errors thrown by `load`
-      Promise.resolve(true).then(() => handlersIn.load(nextProps, prevProps, { handlers: this.handlers }))
+      Promise.resolve(true).then(() => handlersIn.load(nextProps, prevProps))
         .then(updater => updater && this.changeState(updater))
         .catch(error => this.setState({ loadError: error }))
     }

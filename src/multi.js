@@ -48,8 +48,7 @@ export default function makeMultiOrganism(
           if (handlersIn.load) {
             // Wrap in Promise to safely catch any errors thrown by `load`
             return Promise.resolve(true)
-              // TODO: don’t pass handlers? State might not be properly ready at .load
-              .then(() => handlersIn.load(nextProps, prevProps, { handlers: this.cellsProxy[cellKey].handlers }))
+              .then(() => handlersIn.load(nextProps, prevProps))
               .then(values => (values && { values, cellKey }))
           }
         })
