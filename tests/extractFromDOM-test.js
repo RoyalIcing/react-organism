@@ -55,7 +55,7 @@ function PhotosList({
   )
 }
 
-describe('makeOrganism', () => {
+describe('extractFromDOM', () => {
   let node
 
   beforeEach(() => {
