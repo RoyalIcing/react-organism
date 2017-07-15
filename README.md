@@ -391,11 +391,13 @@ Extract values from DOM, specifically:
 
 - Like Redux, separate your state management from rendering
 - Unlike Redux, avoid loose strings for identifying actions
+- Redux encourages having state in one bundle, whereas dynamic `import()` encourages breaking apps into sections
 - Easier to reuse functionality, as action handlers are totally encapsulated
 - No ability to reach across to the other side of your state tree
 - Encourages composition of components
 - Supports `async` and `await` in any action
 - No `switch` statements
+- No boilerplate or additional helper libraries
 
 
 [build-badge]: https://img.shields.io/travis/RoyalIcing/react-organism/master.png?style=flat-square
