@@ -29,23 +29,55 @@ export default function makeMultiOrganism(
             changes[cellKey] = stateChanger
           }
           return changes
-        },
-        // Call onChange once updated with current version of state
-        onChange ? () => { onChange(this.state) } : undefined
+        }
       )
+
+      if (onChange && !this.waitingForOnChange) {
+        this.waitingForOnChange = true
+        this.setState(() => ({}), () => {
+          onChange(this.state)
+          this.waitingForOnChange = false
+        })
+      }
+    }
+
+    promiseLoadedValues(nextProps, prevProps) {
+      return Promise.all(
+        Object.keys(cells).map(cellKey => {
+          const handlersIn = cells[cellKey]
+          if (handlersIn.load) {
+            // Wrap in Promise to safely catch any errors thrown by `load`
+            return Promise.resolve(true)
+              // TODO: don’t pass handlers? State might not be properly ready at .load
+              .then(() => handlersIn.load(nextProps, prevProps, { handlers: this.cellsProxy[cellKey].handlers }))
+              .then(values => (values && { values, cellKey }))
+          }
+        })
+          .filter(Boolean) // Filter out cells without .load
+      )
+        .then(results => results.filter(Boolean)) // Filter out .load that returned nothing
     }
 
     // Uses `load` handler, if present, to asynchronously load initial state
     loadAsync(nextProps, prevProps) {
-      Object.keys(cells).map(cellKey => {
-        const handlersIn = cells[cellKey]
-        if (handlersIn.load) {
-          // Wrap in Promise to safely catch any errors thrown by `load`
-          Promise.resolve(true).then(() => handlersIn.load(nextProps, prevProps, { handlers: this.cellsProxy[cellKey].handlers }))
-            .then(updater => updater && this.changeStateForCell(updater, cellKey))
-            .catch(error => this.setState({ loadError: error }))
-        }
-      })
+      this.promiseLoadedValues(nextProps, prevProps)
+        .then(results => {
+          results.forEach(({ values, cellKey }) => {
+            this.changeStateForCell(values, cellKey)
+          })
+        })
+        .catch(error => this.setState({ loadError: error }))
+    }
+
+    // Used by Next.js
+    getInitialProps(props) {
+      return this.promiseLoadedValues(props, null)
+        .then(results => {
+          results.reduce((initialCellValues, { values, cellKey }) => {
+            initialCellValues[cellKey] = values
+            return initialCellValues
+          }, {})
+        })
     }
 
     componentDidMount() {
@@ -75,7 +107,7 @@ export default function makeMultiOrganism(
 
           // Call handler function, props first, then rest of args
           // Note: that this should only be given its own handlers, as that’s all it knows about
-          const stateChanger = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers }) ].concat(args));
+          const result = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers }) ].concat(args));
           // Can return multiple state changers, ensure array, and then loop through
           [].concat(result).forEach(stateChanger => {
             // Check if thenable (i.e. a Promise)
