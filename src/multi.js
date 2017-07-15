@@ -13,7 +13,10 @@ export default function makeMultiOrganism(
       // Grab each cell’s initial value
       state[cellKey] = cells[cellKey].initial(this.props)
       return state
-    }, {})
+    }, {
+      loadError: null,
+      handlerError: null
+    })
 
     changeStateForCell(stateChanger, cellKey) {
       // Can either be a plain object or a callback to transform the existing state

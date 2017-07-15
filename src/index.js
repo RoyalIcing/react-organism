@@ -10,7 +10,10 @@ export default (
   } = {}
 ) => class Organism extends PureComponent {
   state = Object.assign(
-    { loadError: null },
+    {
+      loadError: null,
+      handlerError: null
+    },
     handlersIn.initial(this.props)
   )
 
