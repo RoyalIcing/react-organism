@@ -39,9 +39,10 @@ npm i react-organism --save
 
 ## Demos
 
-- [Inputs, forms, animation, fetch](https://react-organism.now.sh) · [code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
+- [Animated counter](https://codesandbox.io/s/mZK9Prnv9)
 - [Live form error validation with Yup](https://codesandbox.io/s/4xQpKRRWx)
 - [Todo List](https://codesandbox.io/s/yME5Y3Yz)
+- [Inputs, forms, animation, fetch](https://react-organism.now.sh) · [code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
 - [User Stories Maker](https://codesandbox.io/s/xkZ5ZONl)
 - [React Cheat Sheet](https://react-cheat.now.sh/) · [code](https://github.com/BurntCaramel/react-cheat)
 
