@@ -1,6 +1,6 @@
 {
   "name": "react-organism",
-  "version": "0.2.0b10",
+  "version": "0.2.0b11",
   "description": "Separate React state in a dead simple functional way",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -18,7 +18,8 @@
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
     "now:deploy": "yarn run build && cd demo/dist && now deploy",
-    "explore-bundle": "source-map-explorer"
+    "explore-bundle": "source-map-explorer",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "dependencies": {},
   "peerDependencies": {
