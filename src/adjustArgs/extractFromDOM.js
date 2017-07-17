@@ -1,7 +1,7 @@
 const numberRegex = /_number$/
 
 export default function extractFromDOM(args) {
-  const targetProperty = 'target'
+  const targetProperty = 'currentTarget'
   // If being passed an event with DOM element that has a dataset
   if (args[0] && args[0][targetProperty] && args[0][targetProperty].dataset) {
     const event = args[0]
