@@ -1,0 +1,37 @@
+{
+  "presets": [
+    [
+      "/Users/pgwsmith/Work/Web/react-organism/node_modules/babel-preset-es2015/lib/index.js",
+      {
+        "loose": true,
+        "modules": false
+      }
+    ],
+    "/Users/pgwsmith/Work/Web/react-organism/node_modules/babel-preset-es2016/lib/index.js",
+    "/Users/pgwsmith/Work/Web/react-organism/node_modules/babel-preset-stage-2/lib/index.js",
+    "/Users/pgwsmith/Work/Web/react-organism/node_modules/babel-preset-react/lib/index.js"
+  ],
+  "plugins": [
+    "/Users/pgwsmith/Work/Web/react-organism/node_modules/babel-plugin-transform-decorators-legacy/lib/index.js",
+    [
+      "/Users/pgwsmith/Work/Web/react-organism/node_modules/babel-plugin-transform-react-remove-prop-types/lib/index.js",
+      {
+        "mode": "wrap"
+      }
+    ],
+    [
+      "/Users/pgwsmith/Work/Web/react-organism/node_modules/babel-plugin-transform-runtime/lib/index.js",
+      {
+        "helpers": false,
+        "polyfill": false,
+        "regenerator": true
+      }
+    ]
+  ],
+  "ignore": [
+    ".spec.js",
+    ".test.js",
+    "-test.js",
+    "/__tests__/"
+  ]
+}
