@@ -36,16 +36,16 @@ export default function extractFromDOM(args) {
     if (event.type === 'submit' && dataset.extract) {
       event.preventDefault()
 
-      const reset = !!dataset.reset // data-reset
       const { elements } = element
       // Loop through form elements https://stackoverflow.com/a/19978872
       for (let i = 0, element; element = elements[i++];) {
           // Read value from <input>
           values[element.name] = element.value
-          if (reset) {
-            // Reset <input> value
-            element.value = ''
-          }
+      }
+
+      const reset = !!dataset.reset // data-reset
+      if (reset && element.reset) {
+        element.reset()
       }
     }
 
