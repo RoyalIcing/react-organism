@@ -22,16 +22,18 @@ export default function makeMultiOrganism(
       // Can either be a plain object or a callback to transform the existing state
       this.setState(
         (prevState, props) => {
-          let changes = {}
+          let cellChanges = {}
           // Check if stateChanger is a function
           if (typeof(stateChanger) === typeof(stateChanger.call)) { // TODO: better function check?
-            changes[cellKey] = stateChanger(prevState[cellKey], props)
+            cellChanges = stateChanger(prevState[cellKey], props)
           }
           // Else just an object with changes
           else {
-            changes[cellKey] = Object.assign({}, changes[cellKey], stateChanger)
+            cellChanges = stateChanger
           }
-          return changes
+          return {
+            [cellKey]: Object.assign({}, prevState[cellKey], cellChanges)
+          }
         }
       )
 

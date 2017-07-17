@@ -10,18 +10,27 @@ const waitMs = duration => new Promise(resolve => setTimeout(resolve, duration))
 function Counter({
   id,
   count,
+  title,
   handlers: {
     increment,
     decrement,
-    initial
+    initial,
+    changeTitle,
+    uppercaseTitle,
+    makeTitleHeading
   }
 }) {
   return (
     <div>
+      <h2 id={`${id}-title`}>{ title }</h2>
       <button id={`${id}-decrement`} onClick={ decrement } children='−' />
       <span id={`${id}-currentCount`}>{ id }: { count }</span>
       <button id={`${id}-increment`} onClick={ increment } children='+' />
       <button id={`${id}-initial`} onClick={ initial } children='Reset' />
+
+      <input id={`${id}-changeTitle`} onChange={ changeTitle } />
+      <button id={`${id}-uppercaseTitle`} onClick={ uppercaseTitle } children='uppercaseTitle' />
+      <button id={`${id}-makeTitleHeading`} onClick={ makeTitleHeading } children='makeTitleHeading' />
     </div>
   )
 }
@@ -34,7 +43,10 @@ const counterModel = {
 
 const loadWait = 35
 const counterLoadModel = {
-  initial: ({ initialCount = 0 }) => ({ count: initialCount }),
+  initial: ({ initialCount = 0 }) => ({
+    count: initialCount,
+    title: 'Counter'
+  }),
   load: async ({ loadedCount }, prevProps) => {
     if (!prevProps || loadedCount !== prevProps.loadedCount) {
       await waitMs(loadWait)
@@ -42,7 +54,10 @@ const counterLoadModel = {
     }
   },
   increment: () => ({ count }) => ({ count: count + 1 }),
-  decrement: () => ({ count }) => ({ count: count - 1 })
+  decrement: () => ({ count }) => ({ count: count - 1 }),
+  changeTitle: (props, { value }) => ({ title: value }),
+  uppercaseTitle: () => ({ title }) => ({ title: title.toUpperCase() }),
+  makeTitleHeading: () => ({ title: 'Heading' })
 }
 
 describe('makeMulticelledOrganism', () => {
@@ -132,6 +147,8 @@ describe('makeMulticelledOrganism', () => {
     const $ = (selector) => node.querySelector(selector)
     render(<Organism initialCount={ 2 } loadedCount={ 7 } />, node, () => {
       const $aCurrentCount = $('#a-currentCount')
+      const $aTitle = $('#a-title')
+
       expect($aCurrentCount.textContent).toContain('2')
 
       // Click increment
@@ -159,6 +176,14 @@ describe('makeMulticelledOrganism', () => {
               // Loaded from new props
               expect($aCurrentCount.textContent).toContain('18')
               expect(changeCount).toBe(6)
+
+              expect($aTitle.textContent).toBe('Counter')
+
+              ReactTestUtils.Simulate.click($('#a-uppercaseTitle'))
+              expect($aTitle.textContent).toBe('COUNTER')
+
+              ReactTestUtils.Simulate.click($('#a-makeTitleHeading'))
+              expect($aTitle.textContent).toBe('Heading')
 
               done()
             }, loadWait + 5)
