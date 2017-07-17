@@ -40,6 +40,7 @@ npm i react-organism --save
 ## Demos
 
 - [Animated counter](https://codesandbox.io/s/mZK9Prnv9)
+- [Dynamic loading with `import()`](https://codesandbox.io/s/X6mLEwG7W)
 - [Live form error validation with Yup](https://codesandbox.io/s/4xQpKRRWx)
 - [Todo List](https://codesandbox.io/s/yME5Y3Yz)
 - [Inputs, forms, animation, fetch](https://react-organism.now.sh) · [code](https://github.com/BurntCaramel/react-organism/tree/master/demo/src)
