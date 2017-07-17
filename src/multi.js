@@ -29,7 +29,7 @@ export default function makeMultiOrganism(
           }
           // Else just an object with changes
           else {
-            Object.assign({}, changes[cellKey], stateChanger)
+            changes[cellKey] = Object.assign({}, changes[cellKey], stateChanger)
           }
           return changes
         }
