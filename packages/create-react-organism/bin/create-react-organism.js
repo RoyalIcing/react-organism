@@ -101,7 +101,7 @@ import makeOrganism from 'react-organism'
 import ${componentName} from './component'
 import * as state from './state'
 
-export default makeOrganism(state, ${componentName})
+export default makeOrganism(${componentName}, state)
 `.trim()
 }
 
