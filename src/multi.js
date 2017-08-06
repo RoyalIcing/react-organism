@@ -52,34 +52,6 @@ export default function makeMultiOrganism(
       )
     }
 
-    changeStateForCell(stateChanger, cellKey) {
-      // Can either be a plain object or a callback to transform the existing state
-      this.setState(
-        (prevState, props) => {
-          let cellChanges = {}
-          // Check if stateChanger is a function
-          if (typeof(stateChanger) === typeof(stateChanger.call)) { // TODO: better function check?
-            cellChanges = stateChanger(prevState[cellKey], props)
-          }
-          // Else just an object with changes
-          else {
-            cellChanges = stateChanger
-          }
-          return {
-            [cellKey]: Object.assign({}, prevState[cellKey], cellChanges)
-          }
-        }
-      )
-
-      if (onChange && !this.waitingForOnChange) {
-        this.waitingForOnChange = true
-        this.setState(() => ({}), () => {
-          onChange(this.state)
-          this.waitingForOnChange = false
-        })
-      }
-    }
-
     promiseLoadedValues(nextProps, prevProps) {
       return Promise.all(
         Object.keys(cells).map(cellKey => {
@@ -101,7 +73,7 @@ export default function makeMultiOrganism(
       this.promiseLoadedValues(nextProps, prevProps)
         .then(results => {
           results.forEach(({ values, cellKey }) => {
-            this.changeStateForCell(values, cellKey)
+            this.changeState(cellStateChangerCatchingError(cellKey, values, 'loadError'))
           })
         })
         .catch(error => this.changeState({ loadError: error }))
