@@ -14,6 +14,11 @@ function Counter({
   handlers: {
     increment,
     decrement,
+    delayedIncrement,
+    doNothing,
+    blowUp,
+    blowUp2,
+    blowUpDelayed,
     initial,
     changeTitle,
     uppercaseTitle,
@@ -26,6 +31,21 @@ function Counter({
       <button id={`${id}-decrement`} onClick={ decrement } children='−' />
       <span id={`${id}-currentCount`}>{ id }: { count }</span>
       <button id={`${id}-increment`} onClick={ increment } children='+' />
+      { delayedIncrement &&
+        <button id={`${id}-delayedIncrement`} onClick={ delayedIncrement } children='+' />
+      }
+      { doNothing &&
+        <button id={`${id}-doNothing`} onClick={ doNothing } children='Do Nothing' />
+      }
+      { blowUp &&
+        <button id={`${id}-blowUp`} onClick={ blowUp } children='Blow Up' />
+      }
+      { blowUp2 &&
+        <button id={`${id}-blowUp2`} onClick={ blowUp2 } children='Blow Up 2' />
+      }
+      { blowUpDelayed &&
+        <button id={`${id}-blowUpDelayed`} onClick={ blowUpDelayed } children='Blow Up Delayed' />
+      }
       <button id={`${id}-initial`} onClick={ initial } children='Reset' />
 
       <input id={`${id}-changeTitle`} onChange={ changeTitle } />
@@ -38,10 +58,26 @@ function Counter({
 const counterModel = {
   initial: ({ initialCount = 0 }) => ({ count: initialCount }),
   increment: () => ({ count }) => ({ count: count + 1 }),
-  decrement: () => ({ count }) => ({ count: count - 1 })
+  decrement: () => ({ count }) => ({ count: count - 1 }),
+  delayedIncrement: async () => {
+    await waitMs(delayWait)
+    return ({ count }) => ({ count: count + 1 })
+  },
+  doNothing: () => {},
+  blowUp: () => {
+    throw new Error('Whoops')
+  },
+  blowUp2: () => (prevState) => {
+    throw new Error('Whoops 2')
+  },
+  blowUpDelayed: async () => {
+    await waitMs(delayWait)
+    throw new Error('Whoops Delayed')
+  }
 }
 
 const loadWait = 35
+const delayWait = 20
 const counterLoadModel = {
   initial: ({ initialCount = 0 }) => ({
     count: initialCount,
@@ -50,7 +86,11 @@ const counterLoadModel = {
   load: async ({ loadedCount }, prevProps) => {
     if (!prevProps || loadedCount !== prevProps.loadedCount) {
       await waitMs(loadWait)
-      return { count: loadedCount * 2 } // Multiply to be sure we are using this loaded value
+      const count = loadedCount * 2 // Multiply to be sure we are using this loaded value
+      if (Number.isNaN(count)) {
+        throw new Error('Loaded count is invalid')
+      }
+      return { count }
     }
   },
   increment: () => ({ count }) => ({ count: count + 1 }),
@@ -61,7 +101,11 @@ const counterLoadModel = {
 }
 
 describe('makeMulticelledOrganism', () => {
-  let node
+  let node;
+  const $ = (selector) => node.querySelector(selector)
+  const promiseRender = (element) => new Promise((resolve) => {
+    render(element, node, resolve)  
+  })
 
   beforeEach(() => {
     node = document.createElement('div')
@@ -71,8 +115,9 @@ describe('makeMulticelledOrganism', () => {
     unmountComponentAtNode(node)
   })
 
-  it('Sends click events', (done) => {
+  it('Sends click events', async () => {
     let changeCount = 0
+    let latestState;
 
     const Organism = makeMulticelledOrganism(({
       cells: {
@@ -88,41 +133,65 @@ describe('makeMulticelledOrganism', () => {
       counterA: counterModel,
       counterB: counterModel
     }, {
-      onChange() {
+      onChange(state) {
+        latestState = state
         changeCount++
       }
     })
 
-    const $ = (selector) => node.querySelector(selector)
-    render(<Organism initialCount={ 2 } />, node, () => {
-      const $aCurrentCount = $('#a-currentCount')
-      const $bCurrentCount = $('#b-currentCount')
-      expect($aCurrentCount.textContent).toBe('a: 2')
-      expect($bCurrentCount.textContent).toBe('b: 2')
+    await promiseRender(<Organism initialCount={ 2 } />)
+    const $aCurrentCount = $('#a-currentCount')
+    const $bCurrentCount = $('#b-currentCount')
+    expect($aCurrentCount.textContent).toBe('a: 2')
+    expect($bCurrentCount.textContent).toBe('b: 2')
 
-      // Click increment
-      ReactTestUtils.Simulate.click($('#a-increment'))
-      expect($aCurrentCount.textContent).toBe('a: 3')
-      expect($bCurrentCount.textContent).toBe('b: 2')
+    // Click a increment
+    ReactTestUtils.Simulate.click($('#a-increment'))
+    expect($aCurrentCount.textContent).toBe('a: 3')
+    expect($bCurrentCount.textContent).toBe('b: 2')
 
-      // Click decrement
-      ReactTestUtils.Simulate.click($('#a-decrement'))
-      expect($aCurrentCount.textContent).toBe('a: 2')
-      expect($bCurrentCount.textContent).toBe('b: 2')
+    // Click a decrement
+    ReactTestUtils.Simulate.click($('#a-decrement'))
+    expect($aCurrentCount.textContent).toBe('a: 2')
+    expect($bCurrentCount.textContent).toBe('b: 2')
 
-      // Click decrement
-      ReactTestUtils.Simulate.click($('#b-decrement'))
-      expect($aCurrentCount.textContent).toBe('a: 2')
-      expect($bCurrentCount.textContent).toBe('b: 1')
+    // Click b decrement
+    ReactTestUtils.Simulate.click($('#b-decrement'))
+    expect($aCurrentCount.textContent).toBe('a: 2')
+    expect($bCurrentCount.textContent).toBe('b: 1')
+    expect(changeCount).toBe(3)
 
-      expect(changeCount).toBe(3)
+    // Click delayedIncrement
+    ReactTestUtils.Simulate.click($('#a-delayedIncrement'))
+    await waitMs(delayWait + 5)
+    expect($aCurrentCount.textContent).toBe('a: 3')
+    expect($bCurrentCount.textContent).toBe('b: 1')
+    expect(changeCount).toBe(4)
 
-      done()
-    })
+    ReactTestUtils.Simulate.click($('#b-doNothing'))
+    expect(node.innerHTML).toContain('3')
+    expect(changeCount).toBe(4)
+
+    // Click blowUp
+    ReactTestUtils.Simulate.click($('#a-blowUp'))
+    expect(latestState.handlerError).toExist()
+    expect(latestState.handlerError.message).toBe('Whoops')
+
+    // Click blowUp2
+    ReactTestUtils.Simulate.click($('#b-blowUp2'))
+    expect(latestState.handlerError).toExist()
+    expect(latestState.handlerError.message).toBe('Whoops 2')
+
+    // Click blowUpDelayed
+    ReactTestUtils.Simulate.click($('#a-blowUpDelayed'))
+    await waitMs(delayWait + 5)
+    expect(latestState.handlerError).toExist()
+    expect(latestState.handlerError.message).toBe('Whoops Delayed')
   })
 
-  it('Calls load handler', (done) => {
+  it('Calls load handler', async () => {
     let changeCount = 0
+    let latestState;
     const loadWait = 35
 
     const Organism = makeMulticelledOrganism(({
@@ -139,58 +208,55 @@ describe('makeMulticelledOrganism', () => {
       counterA: counterLoadModel,
       counterB: counterLoadModel
     }, {
-      onChange() {
+      onChange(state) {
+        latestState = state
         changeCount++
       }
     })
 
-    const $ = (selector) => node.querySelector(selector)
-    render(<Organism initialCount={ 2 } loadedCount={ 7 } />, node, () => {
-      const $aCurrentCount = $('#a-currentCount')
-      const $aTitle = $('#a-title')
+    await promiseRender(<Organism initialCount={ 2 } loadedCount={ 7 } />)
+    const $aCurrentCount = $('#a-currentCount')
+    const $aTitle = $('#a-title')
 
-      expect($aCurrentCount.textContent).toContain('2')
+    expect($aCurrentCount.textContent).toContain('2')
 
-      // Click increment
-      ReactTestUtils.Simulate.click($('#a-increment'))
-      expect($aCurrentCount.textContent).toContain('3')
+    // Click increment
+    ReactTestUtils.Simulate.click($('#a-increment'))
+    expect($aCurrentCount.textContent).toContain('3')
 
-      // Click decrement
-      ReactTestUtils.Simulate.click($('#a-decrement'))
-      expect($aCurrentCount.textContent).toContain('2')
+    // Click decrement
+    ReactTestUtils.Simulate.click($('#a-decrement'))
+    expect($aCurrentCount.textContent).toContain('2')
+    expect(changeCount).toBe(2)
 
-      expect(changeCount).toBe(2)
+    await waitMs(loadWait + 5)
+    // Loaded
+    expect($aCurrentCount.textContent).toContain('14')
+    expect(changeCount).toBe(4) // Both cells loaded, so change count increases by 2
 
-      setTimeout(() => {
-        // Loaded
-        expect($aCurrentCount.textContent).toContain('14')
-        expect(changeCount).toBe(4) // Both cells loaded, so change count increases by 2
+    await promiseRender(<Organism initialCount={ 22 } loadedCount={ 7 } />)
+    // Takes some time to load, so shouldn’t have changed yet
+    expect($aCurrentCount.textContent).toContain('14')
+    expect(changeCount).toBe(4)
 
-        render(<Organism initialCount={ 22 } loadedCount={ 7 } />, node, () => {
-          // Takes some time to load, so shouldn’t have changed yet
-          expect($aCurrentCount.textContent).toContain('14')
-          expect(changeCount).toBe(4)
+    await promiseRender(<Organism initialCount={ 22 } loadedCount={ 9 } />)
+    await waitMs(loadWait + 5)
+    // Loaded from new props
+    expect($aCurrentCount.textContent).toContain('18')
+    expect(changeCount).toBe(6)
 
-          render(<Organism initialCount={ 22 } loadedCount={ 9 } />, node, () => {
-            setTimeout(() => {
-              // Loaded from new props
-              expect($aCurrentCount.textContent).toContain('18')
-              expect(changeCount).toBe(6)
+    expect($aTitle.textContent).toBe('Counter')
 
-              expect($aTitle.textContent).toBe('Counter')
+    ReactTestUtils.Simulate.click($('#a-uppercaseTitle'))
+    expect($aTitle.textContent).toBe('COUNTER')
 
-              ReactTestUtils.Simulate.click($('#a-uppercaseTitle'))
-              expect($aTitle.textContent).toBe('COUNTER')
+    ReactTestUtils.Simulate.click($('#a-makeTitleHeading'))
+    expect($aTitle.textContent).toBe('Heading')
 
-              ReactTestUtils.Simulate.click($('#a-makeTitleHeading'))
-              expect($aTitle.textContent).toBe('Heading')
-
-              done()
-            }, loadWait + 5)
-          })
-        })
-      }, loadWait + 5)
-    })
+    await promiseRender(<Organism initialCount={ 22 } loadedCount='Not a number' />)
+    await waitMs(loadWait + 5)
+    expect(latestState.loadError).toExist()
+    expect(changeCount).toBe(9)
   })
 
 })

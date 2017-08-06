@@ -1,5 +1,30 @@
 import React from 'react'
 
+function cellStateChangerCatchingError(cellKey, stateChanger, errorKey) {
+  return (prevState, props) => {
+    let cellChanges = {}
+    // Check if stateChanger is a function
+    if (typeof(stateChanger) === typeof(stateChanger.call)) {
+      try {
+        // Call state changer
+        cellChanges = stateChanger(prevState[cellKey], props)
+      }
+      // State changer may throw
+      catch (error) {
+        // Store error in state
+        return { [errorKey]: error }
+      }
+    }
+    // Else just an object with changes
+    else {
+      cellChanges = stateChanger
+    }
+    return {
+      [cellKey]: Object.assign({}, prevState[cellKey], cellChanges)
+    }
+  }
+}
+
 export default function makeMultiOrganism(
   Parent,
   cells,
@@ -17,6 +42,15 @@ export default function makeMultiOrganism(
       loadError: null,
       handlerError: null
     })
+
+    changeState(stateChanger) {
+      // Can either be a plain object or a callback to transform the existing state
+      this.setState(
+        stateChanger,
+        // Call onChange once updated with current version of state
+        onChange ? () => { onChange(this.state) } : undefined
+      )
+    }
 
     changeStateForCell(stateChanger, cellKey) {
       // Can either be a plain object or a callback to transform the existing state
@@ -70,7 +104,7 @@ export default function makeMultiOrganism(
             this.changeStateForCell(values, cellKey)
           })
         })
-        .catch(error => this.setState({ loadError: error }))
+        .catch(error => this.changeState({ loadError: error }))
     }
 
     // Used by Next.js
@@ -111,25 +145,36 @@ export default function makeMultiOrganism(
 
           // Call handler function, props first, then rest of args
           // Note: that this should only be given its own handlers, as that’s all it knows about
-          const result = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers }) ].concat(args));
-          // Can return multiple state changers, ensure array, and then loop through
-          [].concat(result).forEach(stateChanger => {
-            // Check if thenable (i.e. a Promise)
-            if (!!stateChanger && (typeof stateChanger.then === typeof Object.assign)) {
-              stateChanger
-                .then(stateChanger => {
-                  stateChanger && this.changeStateForCell(stateChanger, cellKey)
-                })
-                .catch(error => {
-                  this.setState({ handlerError: error })
-                })
-            }
-            // Otherwise, change state immediately
-            // Required for things like <textarea> onChange to keep cursor in correct position
-            else {
-              stateChanger && this.changeStateForCell(stateChanger, cellKey)
-            }
-          })
+          try {
+            const result = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers }) ].concat(args));
+            // Can return multiple state changers, ensure array, and then loop through
+            [].concat(result).forEach(stateChanger => {
+              // Can return no state changer
+              if (!stateChanger) {
+                return;
+              }
+
+              // Check if thenable (i.e. a Promise)
+              if (typeof stateChanger.then === typeof Object.assign) {
+                stateChanger
+                  .then(stateChanger => {
+                    stateChanger && this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, 'handlerError'))
+                  })
+                  .catch(error => {
+                    this.changeState({ handlerError: error })
+                  })
+              }
+              // Otherwise, change state immediately
+              // Required for things like <textarea> onChange to keep cursor in correct position
+              else {
+                this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, 'handlerError'))
+              }
+            })
+          }
+          // Catch error within handler’s (first) function
+          catch (error) {
+            this.changeState({ handlerError: error })
+          }
         }
         return out
       }, {})
