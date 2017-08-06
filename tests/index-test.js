@@ -16,6 +16,7 @@ function Counter({
     doNothing,
     blowUp,
     blowUp2,
+    blowUpDelayed,
     initial
   }
 }) {
@@ -35,6 +36,9 @@ function Counter({
       }
       { blowUp2 &&
         <button id='blowUp2' onClick={ blowUp2 } children='Blow Up 2' />
+      }
+      { blowUpDelayed &&
+        <button id='blowUpDelayed' onClick={ blowUpDelayed } children='Blow Up Delayed' />
       }
       <button id='initial' onClick={ initial } children='Reset' />
     </div>
@@ -73,7 +77,13 @@ describe('makeOrganism', () => {
       blowUp: () => {
         throw new Error('Whoops')
       },
-      blowUp2: () => (prevState) => { throw new Error('Whoops2') }
+      blowUp2: () => (prevState) => {
+        throw new Error('Whoops 2')
+      },
+      blowUpDelayed: async () => {
+        await waitMs(delayWait)
+        throw new Error('Whoops Delayed')
+      }
     }, {
       onChange(state) {
         latestState = state
@@ -111,9 +121,15 @@ describe('makeOrganism', () => {
     // Click blowUp2
     ReactTestUtils.Simulate.click($('#blowUp2'))
     expect(latestState.handlerError).toExist()
-    expect(latestState.handlerError.message).toBe('Whoops2')
+    expect(latestState.handlerError.message).toBe('Whoops 2')
 
-    expect(changeCount).toBe(5)
+    // Click blowUpDelayed
+    ReactTestUtils.Simulate.click($('#blowUpDelayed'))
+    await waitMs(delayWait + 5)
+    expect(latestState.handlerError).toExist()
+    expect(latestState.handlerError.message).toBe('Whoops Delayed')
+
+    expect(changeCount).toBe(6)
   })
 
   it('Calls load handler', async () => {
