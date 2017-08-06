@@ -42,7 +42,7 @@ export default function extractFromDOM(args) {
           // Read value from <input>
           let value = element.value
           // Handle <input type='number'>
-          if (element.type.toLowerCase() === 'number') {
+          if (element.type != null && element.type.toLowerCase() === 'number') {
             value = parseFloat(value)
           }
           values[element.name] = value
