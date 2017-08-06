@@ -52,36 +52,37 @@ export default function makeMultiOrganism(
       )
     }
 
-    promiseLoadedValues(nextProps, prevProps) {
-      return Promise.all(
-        Object.keys(cells).map(cellKey => {
-          const handlersIn = cells[cellKey]
-          if (handlersIn.load) {
-            // Wrap in Promise to safely catch any errors thrown by `load`
-            return Promise.resolve(true)
-              .then(() => handlersIn.load(nextProps, prevProps))
-              .then(values => (values && { values, cellKey }))
-          }
-        })
+    loadPromises(nextProps, prevProps) {
+      return Object.keys(cells).map(cellKey => {
+        const handlersIn = cells[cellKey]
+        if (handlersIn.load) {
+          // Wrap in Promise to safely catch any errors thrown by `load`
+          return Promise.resolve(true)
+            .then(() => handlersIn.load(nextProps, prevProps))
+            .then(values => (!!values ? { values, cellKey } : undefined))
+        }
+      })
           .filter(Boolean) // Filter out cells without .load
-      )
-        .then(results => results.filter(Boolean)) // Filter out .load that returned nothing
     }
 
     // Uses `load` handler, if present, to asynchronously load initial state
     loadAsync(nextProps, prevProps) {
-      this.promiseLoadedValues(nextProps, prevProps)
-        .then(results => {
-          results.forEach(({ values, cellKey }) => {
-            this.changeState(cellStateChangerCatchingError(cellKey, values, 'loadError'))
+      this.loadPromises(nextProps, prevProps)
+        .forEach(promise => {
+          promise.then(result => {
+            if (!result) {
+              return
+            }
+            this.changeState(cellStateChangerCatchingError(result.cellKey, result.values, 'loadError'))
           })
+          .catch(error => this.changeState({ loadError: error }))
         })
-        .catch(error => this.changeState({ loadError: error }))
     }
 
     // Used by Next.js
     getInitialProps(props) {
-      return this.promiseLoadedValues(props, null)
+      return Promise.all(this.loadPromises(props, null))
+        .then(results => results.filter(Boolean)) // Filter out .load that returned nothing
         .then(results => {
           results.reduce((initialCellValues, { values, cellKey }) => {
             initialCellValues[cellKey] = values

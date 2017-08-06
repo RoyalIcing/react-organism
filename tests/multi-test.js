@@ -256,7 +256,7 @@ describe('makeMulticelledOrganism', () => {
     await promiseRender(<Organism initialCount={ 22 } loadedCount='Not a number' />)
     await waitMs(loadWait + 5)
     expect(latestState.loadError).toExist()
-    expect(changeCount).toBe(9)
+    expect(changeCount).toBe(10)
   })
 
 })
