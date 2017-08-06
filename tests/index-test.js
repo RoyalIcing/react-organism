@@ -194,6 +194,7 @@ describe('makeOrganism', () => {
     expect(node.innerHTML).toContain(18)
     expect(changeCount).toBe(5)
 
+    // Load error
     promiseRender(<CounterOrganism initialCount={ 22 } loadedCount='Not a number' />)
     await waitMs(loadWait + 5)
     expect(latestState.loadError).toExist()

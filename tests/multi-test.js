@@ -20,6 +20,7 @@ function Counter({
     blowUp2,
     blowUpDelayed,
     initial,
+    load,
     changeTitle,
     uppercaseTitle,
     makeTitleHeading
@@ -47,6 +48,9 @@ function Counter({
         <button id={`${id}-blowUpDelayed`} onClick={ blowUpDelayed } children='Blow Up Delayed' />
       }
       <button id={`${id}-initial`} onClick={ initial } children='Reset' />
+      { load &&
+        <button id='reload' onClick={ load } children='Reload' />
+      }
 
       <input id={`${id}-changeTitle`} onChange={ changeTitle } />
       <button id={`${id}-uppercaseTitle`} onClick={ uppercaseTitle } children='uppercaseTitle' />
@@ -253,10 +257,17 @@ describe('makeMulticelledOrganism', () => {
     ReactTestUtils.Simulate.click($('#a-makeTitleHeading'))
     expect($aTitle.textContent).toBe('Heading')
 
+    // Click reload
+    ReactTestUtils.Simulate.click($('#reload'))
+    await waitMs(loadWait + 5)
+    expect($aCurrentCount.textContent).toContain('18')
+    expect(changeCount).toBe(10)
+
+    // Load error
     await promiseRender(<Organism initialCount={ 22 } loadedCount='Not a number' />)
     await waitMs(loadWait + 5)
     expect(latestState.loadError).toExist()
-    expect(changeCount).toBe(10)
+    expect(changeCount).toBe(12)
   })
 
   it('getInitialProps()', async () => {
