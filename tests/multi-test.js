@@ -259,4 +259,39 @@ describe('makeMulticelledOrganism', () => {
     expect(changeCount).toBe(10)
   })
 
+  it('getInitialProps()', async () => {
+    let changeCount = 0
+    let latestState;
+    const loadWait = 35
+
+    const Organism = makeMulticelledOrganism(({
+      cells: {
+        counterA,
+        counterB
+      }
+    }) => (
+      <div>
+        <Counter id='a' { ...counterA } />
+        <Counter id='b' { ...counterB } />
+      </div>
+    ), {
+      counterA: counterLoadModel,
+      counterB: counterLoadModel
+    }, {
+      onChange(state) {
+        latestState = state
+        changeCount++
+      }
+    })
+
+    const element = <Organism initialCount={ 2 } loadedCount={ 7 } />
+    const instance = new Organism(element.props)
+
+    const initialProps = await instance.getInitialProps(element.props)
+    expect(initialProps).toEqual({
+      counterA: { count: 14 },
+      counterB: { count: 14 }
+    })
+  })
+
 })

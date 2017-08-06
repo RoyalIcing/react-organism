@@ -83,12 +83,12 @@ export default function makeMultiOrganism(
     getInitialProps(props) {
       return Promise.all(this.loadPromises(props, null))
         .then(results => results.filter(Boolean)) // Filter out .load that returned nothing
-        .then(results => {
+        .then(results => (
           results.reduce((initialCellValues, { values, cellKey }) => {
             initialCellValues[cellKey] = values
             return initialCellValues
           }, {})
-        })
+        ))
     }
 
     componentDidMount() {
