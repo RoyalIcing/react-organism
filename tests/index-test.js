@@ -17,7 +17,8 @@ function Counter({
     blowUp,
     blowUp2,
     blowUpDelayed,
-    initial
+    initial,
+    load
   }
 }) {
   return (
@@ -41,6 +42,9 @@ function Counter({
         <button id='blowUpDelayed' onClick={ blowUpDelayed } children='Blow Up Delayed' />
       }
       <button id='initial' onClick={ initial } children='Reset' />
+      { load &&
+        <button id='reload' onClick={ load } children='Reload' />
+      }
     </div>
   )
 }
@@ -181,19 +185,19 @@ describe('makeOrganism', () => {
 
     await promiseRender(<CounterOrganism initialCount={ 22 } loadedCount={ 9 } />)
     await waitMs(loadWait + 5)
-
     expect(node.innerHTML).toContain(18)
     expect(changeCount).toBe(4)
 
-    try {
-      await promiseRender(<CounterOrganism initialCount={ 22 } loadedCount='Not a number' />)
-    }
-    catch (error) {
-      expect(error).toNotExist()
-    }
-    await waitMs(loadWait + 15)
+    // Click reload
+    ReactTestUtils.Simulate.click($('#reload'))
+    await waitMs(loadWait + 5)
+    expect(node.innerHTML).toContain(18)
+    expect(changeCount).toBe(5)
 
+    promiseRender(<CounterOrganism initialCount={ 22 } loadedCount='Not a number' />)
+    await waitMs(loadWait + 5)
     expect(latestState.loadError).toExist()
+    expect(changeCount).toBe(6)
   })
 
 })
