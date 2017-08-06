@@ -13,6 +13,9 @@ function Counter({
     increment,
     decrement,
     delayedIncrement,
+    doNothing,
+    blowUp,
+    blowUp2,
     initial
   }
 }) {
@@ -24,6 +27,15 @@ function Counter({
       { delayedIncrement &&
         <button id='delayedIncrement' onClick={ delayedIncrement } children='+' />
       }
+      { doNothing &&
+        <button id='doNothing' onClick={ doNothing } children='Do Nothing' />
+      }
+      { blowUp &&
+        <button id='blowUp' onClick={ blowUp } children='Blow Up' />
+      }
+      { blowUp2 &&
+        <button id='blowUp2' onClick={ blowUp2 } children='Blow Up 2' />
+      }
       <button id='initial' onClick={ initial } children='Reset' />
     </div>
   )
@@ -31,6 +43,7 @@ function Counter({
 
 describe('makeOrganism', () => {
   let node;
+  let latestState;
   const $ = (selector) => node.querySelector(selector)
   const promiseRender = (element) => new Promise((resolve) => {
     render(element, node, resolve)  
@@ -55,9 +68,15 @@ describe('makeOrganism', () => {
       delayedIncrement: async () => {
         await waitMs(delayWait)
         return ({ count }) => ({ count: count + 1 })
-      }
+      },
+      doNothing: () => {},
+      blowUp: () => {
+        throw new Error('Whoops')
+      },
+      blowUp2: () => (prevState) => { throw new Error('Whoops2') }
     }, {
-      onChange() {
+      onChange(state) {
+        latestState = state
         changeCount++
       }
     })
@@ -72,15 +91,29 @@ describe('makeOrganism', () => {
     // Click decrement
     ReactTestUtils.Simulate.click($('#decrement'))
     expect(node.innerHTML).toContain('2')
-
     expect(changeCount).toBe(2)
 
     // Click delayedIncrement
     ReactTestUtils.Simulate.click($('#delayedIncrement'))
     await waitMs(delayWait + 5)
     expect(node.innerHTML).toContain('3')
-
     expect(changeCount).toBe(3)
+
+    ReactTestUtils.Simulate.click($('#doNothing'))
+    expect(node.innerHTML).toContain('3')
+    expect(changeCount).toBe(3)
+
+    // Click blowUp
+    ReactTestUtils.Simulate.click($('#blowUp'))
+    expect(latestState.handlerError).toExist()
+    expect(latestState.handlerError.message).toBe('Whoops')
+
+    // Click blowUp2
+    ReactTestUtils.Simulate.click($('#blowUp2'))
+    expect(latestState.handlerError).toExist()
+    expect(latestState.handlerError.message).toBe('Whoops2')
+
+    expect(changeCount).toBe(5)
   })
 
   it('Calls load handler', async () => {

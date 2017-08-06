@@ -1,5 +1,26 @@
 import React, { PureComponent } from 'react'
 
+function stateChangerCatchingError(stateChanger, errorKey) {
+  return (prevState, props) => {
+    // Check if stateChanger is a function
+    if (typeof(stateChanger) === typeof(stateChanger.call)) {
+      try {
+        // Call state changer
+        return stateChanger(prevState, props)
+      }
+      // State changer may throw
+      catch (error) {
+        // Store error in state
+        return { [errorKey]: error }
+      }
+    }
+    // Else just an object with changes
+    else {
+      return stateChanger
+    }
+  }
+}
+
 // Returns a new stateful component, given the specified state handlers and a pure component to render with
 export default (
   Pure,
@@ -31,7 +52,7 @@ export default (
     if (handlersIn.load) {
       // Wrap in Promise to safely catch any errors thrown by `load`
       Promise.resolve(true).then(() => handlersIn.load(nextProps, prevProps))
-        .then(updater => updater && this.changeState(updater))
+        .then(updater => updater && this.changeState(stateChangerCatchingError(updater, 'handlerError')))
         .catch(error => this.changeState({ loadError: error }))
     }
   }
@@ -59,25 +80,35 @@ export default (
       }
 
       // Call handler function, props first, then rest of args
-      const result = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args));
-      // Can return multiple state changers, ensure array, and then loop through
-      [].concat(result).forEach(stateChanger => {
-        // Check if thenable (i.e. a Promise)
-        if (!!stateChanger && (typeof stateChanger.then === typeof Object.assign)) {
-          stateChanger.then(stateChanger => {
-            // Handlers can optionally change the state
-            stateChanger && this.changeState(stateChanger)
-          })
-          .catch(error => {
-            this.changeState({ handlerError: error })
-          })
-        }
-        // Otherwise, change state immediately
-        // Required for things like <textarea> onChange to keep cursor in correct position
-        else {
-          stateChanger && this.changeState(stateChanger)
-        }
-      })
+      try {
+        const result = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args));
+        // Can return multiple state changers, ensure array, and then loop through
+        [].concat(result).forEach(stateChanger => {
+          // Can return no state changer
+          if (!stateChanger) {
+            return;
+          }
+
+          // Check if thenable (i.e. a Promise)
+          if (typeof stateChanger.then === typeof Object.assign) {
+            stateChanger.then(stateChanger => {
+              // Handlers can optionally change the state
+              stateChanger && this.changeState(stateChangerCatchingError(stateChanger, 'handlerError'))
+            })
+            .catch(error => {
+              this.changeState({ handlerError: error })
+            })
+          }
+          // Otherwise, change state immediately
+          // Required for things like <textarea> onChange to keep cursor in correct position
+          else {
+            this.changeState(stateChangerCatchingError(stateChanger, 'handlerError'))
+          }
+        })
+      }
+      catch (error) {
+        this.changeState({ handlerError: error })
+      }
     }
     return out
   }, {})
