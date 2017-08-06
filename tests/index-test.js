@@ -12,6 +12,7 @@ function Counter({
   handlers: {
     increment,
     decrement,
+    delayedIncrement,
     initial
   }
 }) {
@@ -20,13 +21,20 @@ function Counter({
       <button id='decrement' onClick={ decrement } children='−' />
       <span>{ count }</span>
       <button id='increment' onClick={ increment } children='+' />
+      { delayedIncrement &&
+        <button id='delayedIncrement' onClick={ delayedIncrement } children='+' />
+      }
       <button id='initial' onClick={ initial } children='Reset' />
     </div>
   )
 }
 
 describe('makeOrganism', () => {
-  let node
+  let node;
+  const $ = (selector) => node.querySelector(selector)
+  const promiseRender = (element) => new Promise((resolve) => {
+    render(element, node, resolve)  
+  })
 
   beforeEach(() => {
     node = document.createElement('div')
@@ -36,34 +44,43 @@ describe('makeOrganism', () => {
     unmountComponentAtNode(node)
   })
 
-  it('Sends click events', (done) => {
+  it('Sends click events', async () => {
     let changeCount = 0
+    const delayWait = 20
 
     const CounterOrganism = makeOrganism(Counter, {
       initial: ({ initialCount = 0 }) => ({ count: initialCount }),
       increment: () => ({ count }) => ({ count: count + 1 }),
-      decrement: () => ({ count }) => ({ count: count - 1 })
+      decrement: () => ({ count }) => ({ count: count - 1 }),
+      delayedIncrement: async () => {
+        await waitMs(delayWait)
+        return ({ count }) => ({ count: count + 1 })
+      }
     }, {
       onChange() {
         changeCount++
       }
     })
-    const $ = (selector) => node.querySelector(selector)
-    render(<CounterOrganism initialCount={ 2 } />, node, () => {
-      expect(node.innerHTML).toContain('2')
 
-      // Click increment
-      ReactTestUtils.Simulate.click($('#increment'))
-      expect(node.innerHTML).toContain('3')
+    await promiseRender(<CounterOrganism initialCount={ 2 } />)
+    expect(node.innerHTML).toContain('2')
 
-      // Click decrement
-      ReactTestUtils.Simulate.click($('#decrement'))
-      expect(node.innerHTML).toContain('2')
+    // Click increment
+    ReactTestUtils.Simulate.click($('#increment'))
+    expect(node.innerHTML).toContain('3')
 
-      expect(changeCount).toBe(2)
+    // Click decrement
+    ReactTestUtils.Simulate.click($('#decrement'))
+    expect(node.innerHTML).toContain('2')
 
-      done()
-    })
+    expect(changeCount).toBe(2)
+
+    // Click delayedIncrement
+    ReactTestUtils.Simulate.click($('#delayedIncrement'))
+    await waitMs(delayWait + 5)
+    expect(node.innerHTML).toContain('3')
+
+    expect(changeCount).toBe(3)
   })
 
   it('Calls load handler', async () => {
@@ -90,10 +107,6 @@ describe('makeOrganism', () => {
         latestState = state
         changeCount++
       }
-    })
-    const $ = (selector) => node.querySelector(selector)
-    const promiseRender = (element) => new Promise((resolve, reject) => {
-      render(element, node, resolve)  
     })
 
     await promiseRender(<CounterOrganism initialCount={ 2 } loadedCount={ 7 } />)
@@ -131,7 +144,6 @@ describe('makeOrganism', () => {
     }
     await waitMs(loadWait + 15)
 
-    console.log('latestState', latestState)
     expect(latestState.loadError).toExist()
   })
 
