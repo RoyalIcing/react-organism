@@ -106,6 +106,7 @@ export default (
           }
         })
       }
+      // Catch error within handler’s (first) function
       catch (error) {
         this.changeState({ handlerError: error })
       }
