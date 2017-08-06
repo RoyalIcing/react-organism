@@ -32,7 +32,7 @@ export default (
       // Wrap in Promise to safely catch any errors thrown by `load`
       Promise.resolve(true).then(() => handlersIn.load(nextProps, prevProps))
         .then(updater => updater && this.changeState(updater))
-        .catch(error => this.setState({ loadError: error }))
+        .catch(error => this.changeState({ loadError: error }))
     }
   }
 
@@ -69,7 +69,7 @@ export default (
             stateChanger && this.changeState(stateChanger)
           })
           .catch(error => {
-            this.setState({ handlerError: error })
+            this.changeState({ handlerError: error })
           })
         }
         // Otherwise, change state immediately
