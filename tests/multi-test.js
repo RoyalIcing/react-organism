@@ -107,12 +107,13 @@ const counterLoadModel = {
 describe('makeMulticelledOrganism', () => {
   let node;
   const $ = (selector) => node.querySelector(selector)
-  const promiseRender = (element) => new Promise((resolve) => {
-    render(element, node, resolve)  
-  })
+  let promiseRender;
 
   beforeEach(() => {
     node = document.createElement('div')
+    promiseRender = (element) => new Promise((resolve) => {
+      render(element, node, resolve)
+    })
   })
 
   afterEach(() => {
