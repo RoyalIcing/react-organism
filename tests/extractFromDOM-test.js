@@ -6,6 +6,8 @@ import ReactTestUtils from 'react-dom/test-utils'
 import makeOrganism from 'src/'
 import extractFromDOM from 'src/adjustArgs/extractFromDOM'
 
+const waitMs = duration => new Promise(resolve => setTimeout(resolve, duration))
+
 function PhotosList({
   photosList,
   selectedPhotoIndex,
@@ -78,7 +80,7 @@ describe('extractFromDOM', () => {
       adjustArgs: extractFromDOM
     })
     const $ = (selector) => node.querySelector(selector)
-    render(<PhotosListOrganism />, node, () => {
+    render(<PhotosListOrganism />, node, async () => {
       expect($('#photos').innerHTML).toContain('No photos')
 
       $('#urlField').value = 'https://via.placeholder.com/350x150'
@@ -86,12 +88,14 @@ describe('extractFromDOM', () => {
 
       // Should extract data using named field
       ReactTestUtils.Simulate.submit($('#addPhotoForm'))
+      await waitMs(10)
       expect($('#photos').innerHTML).toContain('https://via.placeholder.com/350x150')
       // Should reset fields if data-reset present
       expect($('#urlField').value).toBe('')
 
       // Should extract data- attributes
       expect($('#selectionStatus').innerHTML).toContain('No photo selected')
+      
       ReactTestUtils.Simulate.click($('#photo-0'))
       expect($('#selectionStatus').innerHTML).toContain('Selected 0')
 
