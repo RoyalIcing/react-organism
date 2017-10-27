@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import nextFrame from './nextFrame'
 
 function stateChangerCatchingError(stateChanger, errorKey) {
   return (prevState, props) => {
@@ -91,14 +92,16 @@ export default (
   }
 
   processIterator(iterator, previousValue) {
-    return Promise.resolve(this.processStateChanger(previousValue))
-    .then(output => iterator.next(output))
+    return nextFrame() // Wait for next frame
+    .then(() => this.processStateChanger(previousValue)) // Process the previous changer
+    .then(output => iterator.next(output)) // Get the next step from the iterator
     .then(result => {
-      if (result.done) {
-        return this.processStateChanger(result.value)
+      if (result.done) { // No more iterations remaining
+        return nextFrame() // Wait for next frame
+          .then(() => this.processStateChanger(result.value)) // Process the changer
       }
       else {
-        return this.processIterator(iterator, result.value)
+        return this.processIterator(iterator, result.value) // Process the iterator’s following steps
       }
     })
   }
