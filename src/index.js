@@ -95,11 +95,9 @@ export default (
 
   processIterator(iterator, errorID, previousValue) {
     Promise.resolve(this.processStateChanger(previousValue, errorID)) // Process the previous changer
-    .then(() => (
-      nextFrame() // Wait for next frame
-        .then(() => iterator.next()) // Get the next step from the iterator
-    ))
-    .then(result => {
+    .then(() => nextFrame()) // Wait for next frame
+    .then(() => {
+      const result = iterator.next() // Get the next step from the iterator
       if (result.done) { // No more iterations remaining
         return this.processStateChanger(result.value, errorID) // Process the changer
       }
