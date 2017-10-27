@@ -65,6 +65,44 @@ export default (
     this.loadAsync(nextProps, this.props)
   }
 
+  processStateChanger(stateChanger) {
+    if (!stateChanger) {
+      return;
+    }
+
+    // Check if thenable (i.e. a Promise)
+    if (typeof stateChanger.then === typeof Object.assign) {
+      return stateChanger.then(stateChanger => {
+        // Handlers can optionally change the state
+        stateChanger && this.changeState(stateChangerCatchingError(stateChanger, 'handlerError'))
+      })
+      .catch(error => {
+        this.changeState({ handlerError: error })
+      })
+    }
+    else if (typeof stateChanger.next === typeof Object.assign) {
+      return this.processIterator(stateChanger)
+    }
+    // Otherwise, change state immediately
+    // Required for things like <textarea> onChange to keep cursor in correct position
+    else {
+      this.changeState(stateChangerCatchingError(stateChanger, 'handlerError'))
+    }
+  }
+
+  processIterator(iterator, previousValue) {
+    return Promise.resolve(this.processStateChanger(previousValue))
+    .then(output => iterator.next(output))
+    .then(result => {
+      if (result.done) {
+        return this.processStateChanger(result.value)
+      }
+      else {
+        return this.processIterator(iterator, result.value)
+      }
+    })
+  }
+
   handlers = Object.keys(handlersIn).reduce((out, key) => {
     // Special case for `load` handler to reload fresh
     if (key === 'load') {
@@ -84,26 +122,7 @@ export default (
         const result = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args));
         // Can return multiple state changers, ensure array, and then loop through
         [].concat(result).forEach(stateChanger => {
-          // Can return no state changer
-          if (!stateChanger) {
-            return;
-          }
-
-          // Check if thenable (i.e. a Promise)
-          if (typeof stateChanger.then === typeof Object.assign) {
-            stateChanger.then(stateChanger => {
-              // Handlers can optionally change the state
-              stateChanger && this.changeState(stateChangerCatchingError(stateChanger, 'handlerError'))
-            })
-            .catch(error => {
-              this.changeState({ handlerError: error })
-            })
-          }
-          // Otherwise, change state immediately
-          // Required for things like <textarea> onChange to keep cursor in correct position
-          else {
-            this.changeState(stateChangerCatchingError(stateChanger, 'handlerError'))
-          }
+          this.processStateChanger(stateChanger)
         })
       }
       // Catch error within handler’s (first) function

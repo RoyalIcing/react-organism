@@ -13,6 +13,7 @@ function Counter({
     increment,
     decrement,
     delayedIncrement,
+    delayedIncrementGenerator,
     doNothing,
     blowUp,
     blowUp2,
@@ -28,6 +29,9 @@ function Counter({
       <button id='increment' onClick={ increment } children='+' />
       { delayedIncrement &&
         <button id='delayedIncrement' onClick={ delayedIncrement } children='+' />
+      }
+      { delayedIncrementGenerator &&
+        <button id='delayedIncrementGenerator' onClick={ delayedIncrementGenerator } children='+' />
       }
       { doNothing &&
         <button id='doNothing' onClick={ doNothing } children='Do Nothing' />
@@ -77,6 +81,10 @@ describe('makeOrganism', () => {
         await waitMs(delayWait)
         return ({ count }) => ({ count: count + 1 })
       },
+      delayedIncrementGenerator: function *() {
+        yield waitMs(delayWait)
+        return ({ count }) => ({ count: count + 1 })
+      },
       doNothing: () => {},
       blowUp: () => {
         throw new Error('Whoops')
@@ -113,9 +121,15 @@ describe('makeOrganism', () => {
     expect(node.innerHTML).toContain('3')
     expect(changeCount).toBe(3)
 
+    // Click delayedIncrementGenerator
+    ReactTestUtils.Simulate.click($('#delayedIncrementGenerator'))
+    await waitMs(delayWait + 5)
+    expect(node.innerHTML).toContain('4')
+    expect(changeCount).toBe(4)
+
     ReactTestUtils.Simulate.click($('#doNothing'))
-    expect(node.innerHTML).toContain('3')
-    expect(changeCount).toBe(3)
+    expect(node.innerHTML).toContain('4')
+    expect(changeCount).toBe(4)
 
     // Click blowUp
     ReactTestUtils.Simulate.click($('#blowUp'))
@@ -133,7 +147,7 @@ describe('makeOrganism', () => {
     expect(latestState.handlerError).toExist()
     expect(latestState.handlerError.message).toBe('Whoops Delayed')
 
-    expect(changeCount).toBe(6)
+    expect(changeCount).toBe(7)
   })
 
   it('Calls load handler', async () => {
