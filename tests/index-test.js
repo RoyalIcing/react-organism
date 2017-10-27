@@ -7,6 +7,11 @@ import makeOrganism from 'src/'
 
 const waitMs = duration => new Promise(resolve => setTimeout(resolve, duration))
 
+const nextFrame = () => new Promise((resolve) => {
+  window.requestAnimationFrame(resolve)
+})
+
+
 function Counter({
   count,
   handlers: {
@@ -83,9 +88,10 @@ describe('makeOrganism', () => {
         return ({ count }) => ({ count: count + 1 })
       },
       delayedIncrementGenerator: function *() {
-        yield waitMs(delayWait / 2)
-        yield waitMs(delayWait / 2)
-        return ({ count }) => ({ count: count + 1 })
+        //yield waitMs(delayWait / 2)
+        yield waitMs(1)
+        //yield waitMs(delayWait / 2)
+        yield ({ count }) => ({ count: count + 1 })
       },
       doNothing: () => {},
       blowUp: () => {

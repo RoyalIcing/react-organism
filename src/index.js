@@ -94,13 +94,14 @@ export default (
   }
 
   processIterator(iterator, errorID, previousValue) {
-    return nextFrame() // Wait for next frame
-    .then(() => this.processStateChanger(previousValue, errorID)) // Process the previous changer
-    .then(output => iterator.next(output)) // Get the next step from the iterator
+    Promise.resolve(this.processStateChanger(previousValue, errorID)) // Process the previous changer
+    .then(() => (
+      nextFrame() // Wait for next frame
+        .then(() => iterator.next()) // Get the next step from the iterator
+    ))
     .then(result => {
       if (result.done) { // No more iterations remaining
-        return nextFrame() // Wait for next frame
-          .then(() => this.processStateChanger(result.value, errorID)) // Process the changer
+        return this.processStateChanger(result.value, errorID) // Process the changer
       }
       else {
         return this.processIterator(iterator, errorID, result.value) // Process the iterator’s following steps
