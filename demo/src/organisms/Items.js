@@ -10,9 +10,8 @@ const fetchAPI = (path) => fetch(baseURL + path).then(r => r.json())
 export default makeOrganism(Items, {
   initial: () => ({ items: null }),
 
-  load: async ({ path }, prevProps, { handlers }) => {
+  load: async ({ path }, prevProps) => {
     if (!prevProps || path !== prevProps.path) {
-      handlers.initial()
       return { items: await fetchAPI(path) }
     }
   }
