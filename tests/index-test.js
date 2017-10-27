@@ -78,11 +78,13 @@ describe('makeOrganism', () => {
       increment: () => ({ count }) => ({ count: count + 1 }),
       decrement: () => ({ count }) => ({ count: count - 1 }),
       delayedIncrement: async () => {
-        await waitMs(delayWait)
+        await waitMs(delayWait / 2)
+        await waitMs(delayWait / 2)
         return ({ count }) => ({ count: count + 1 })
       },
       delayedIncrementGenerator: function *() {
-        yield waitMs(delayWait)
+        yield waitMs(delayWait / 2)
+        yield waitMs(delayWait / 2)
         return ({ count }) => ({ count: count + 1 })
       },
       doNothing: () => {},
