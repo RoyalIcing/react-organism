@@ -51,10 +51,11 @@ export default (
   // Uses `load` handler, if present, to asynchronously load initial state
   loadAsync(nextProps, prevProps) {
     if (handlersIn.load) {
-      // Wrap in Promise to safely catch any errors thrown by `load`
-      Promise.resolve(true).then(() => handlersIn.load(nextProps, prevProps))
-        .then(updater => updater && this.changeState(stateChangerCatchingError(updater, 'handlerError')))
-        .catch(error => this.changeState({ loadError: error }))
+      this.callHandler(
+        handlersIn.load,
+        'loadError',
+        [ nextProps, prevProps ]
+      )
     }
   }
 
@@ -66,44 +67,60 @@ export default (
     this.loadAsync(nextProps, this.props)
   }
 
-  processStateChanger(stateChanger) {
+  processStateChanger(stateChanger, errorID) {
     if (!stateChanger) {
       return;
     }
 
     // Check if thenable (i.e. a Promise)
     if (typeof stateChanger.then === typeof Object.assign) {
-      return stateChanger.then(stateChanger => {
-        // Handlers can optionally change the state
-        stateChanger && this.changeState(stateChangerCatchingError(stateChanger, 'handlerError'))
-      })
+      return stateChanger.then(stateChanger => (
+        //this.processStateChanger(stateChanger, errorID)
+        stateChanger && this.changeState(stateChangerCatchingError(stateChanger, errorID))
+      ))
       .catch(error => {
-        this.changeState({ handlerError: error })
+        this.changeState({ [errorID]: error })
       })
     }
+    // Check if iterator
     else if (typeof stateChanger.next === typeof Object.assign) {
-      return this.processIterator(stateChanger)
+      return this.processIterator(stateChanger, errorID)
     }
     // Otherwise, change state immediately
     // Required for things like <textarea> onChange to keep cursor in correct position
     else {
-      this.changeState(stateChangerCatchingError(stateChanger, 'handlerError'))
+      this.changeState(stateChangerCatchingError(stateChanger, errorID))
     }
   }
 
-  processIterator(iterator, previousValue) {
+  processIterator(iterator, errorID, previousValue) {
     return nextFrame() // Wait for next frame
-    .then(() => this.processStateChanger(previousValue)) // Process the previous changer
+    .then(() => this.processStateChanger(previousValue, errorID)) // Process the previous changer
     .then(output => iterator.next(output)) // Get the next step from the iterator
     .then(result => {
       if (result.done) { // No more iterations remaining
         return nextFrame() // Wait for next frame
-          .then(() => this.processStateChanger(result.value)) // Process the changer
+          .then(() => this.processStateChanger(result.value, errorID)) // Process the changer
       }
       else {
-        return this.processIterator(iterator, result.value) // Process the iterator’s following steps
+        return this.processIterator(iterator, errorID, result.value) // Process the iterator’s following steps
       }
     })
+  }
+
+  callHandler(handler, errorID, args) {
+    // Call handler function, props first, then rest of args
+    try {
+      const result = handler.apply(null, args);
+      // Can return multiple state changers, ensure array, and then loop through
+      [].concat(result).forEach(stateChanger => {
+        this.processStateChanger(stateChanger, errorID)
+      })
+    }
+    // Catch error within handler’s (first) function
+    catch (error) {
+      this.changeState({ [errorID]: error })
+    }
   }
 
   handlers = Object.keys(handlersIn).reduce((out, key) => {
@@ -120,18 +137,11 @@ export default (
         args = adjustArgs(args)
       }
 
-      // Call handler function, props first, then rest of args
-      try {
-        const result = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args));
-        // Can return multiple state changers, ensure array, and then loop through
-        [].concat(result).forEach(stateChanger => {
-          this.processStateChanger(stateChanger)
-        })
-      }
-      // Catch error within handler’s (first) function
-      catch (error) {
-        this.changeState({ handlerError: error })
-      }
+      this.callHandler(
+        handlersIn[key],
+        'handlerError',
+        [ Object.assign({}, this.props, { handlers: this.handlers }) ].concat(args)
+      )
     }
     return out
   }, {})

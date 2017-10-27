@@ -10,9 +10,10 @@ const fetchAPI = (path) => fetch(baseURL + path).then(r => r.json())
 export default makeOrganism(Items, {
   initial: () => ({ items: null }),
 
-  load: async ({ path }, prevProps) => {
+  load: function * ({ path }, prevProps) {
     if (!prevProps || path !== prevProps.path) {
-      return { items: await fetchAPI(path) }
+      yield { items: null } // Clear so 'loading…' text appears
+      yield fetchAPI(path).then(items => ({ items }))
     }
   }
 })
