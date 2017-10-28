@@ -30,7 +30,7 @@
   - [`makeOrganism(PureComponent, StateFunctions, options)`](#makeorganismpurecomponent-statefunctions-options)
   - [State functions](#state-functions)
   - [Argument enhancers](#argument-enhancers)
-- [Why not Redux?](#why-not-redux)
+- [Why instead of Redux?](#why-instead-of-redux)
 
 ## Installation
 
@@ -395,7 +395,7 @@ Extract values from DOM, specifically:
 - For `submit` events, extracts values of `<input>` fields in a `<form>`. Handler will receive the values keyed by the each input’s `name` attribute, followed by the original arguments. Pass the handler to the `onSubmit` prop of the `<form>`. Form must have `data-extract` attribute present. To clear the form after submit, add `data-reset` to the form.
 
 
-## Why not Redux?
+## Why instead of Redux?
 
 - Like Redux, separate your state management from rendering
 - Unlike Redux, avoid loose strings for identifying actions
@@ -404,8 +404,9 @@ Extract values from DOM, specifically:
 - No ability to reach across to the other side of your state tree
 - Encourages composition of components
 - Supports `async` and `await` in any action
+- Supports generator functions to allow multiple state changes — great for animation
 - No `switch` statements
-- No boilerplate or additional helper libraries
+- No boilerplate or additional helper libraries needed
 
 
 [build-badge]: https://img.shields.io/travis/RoyalIcing/react-organism/master.png?style=flat-square
