@@ -100,6 +100,8 @@ export default makeOrganism(Counter, {
   increment: ({ stride = 1 }) => ({ count }) => ({ count: count + stride }),
   decrement: ({ stride = 1 }) => ({ count }) => ({ count: count - stride })
 })
+
+// Render passing prop: <CounterOrganism stride={ 20 } />
 ```
 
 ### Async
