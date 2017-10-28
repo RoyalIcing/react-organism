@@ -110,7 +110,7 @@ Asynchronous code to load from an API is easy:
 // components/Items.js
 import React, { Component } from 'react'
 
-export default function Counter({
+export default function Items({
   items,
   collectionName,
   handlers: {
