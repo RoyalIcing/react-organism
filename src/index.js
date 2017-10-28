@@ -67,7 +67,7 @@ export default (
     this.loadAsync(nextProps, this.props)
   }
 
-  processStateChanger(stateChanger, errorID) {
+  processStateChanger(stateChanger, errorKey) {
     if (!stateChanger) {
       return;
     }
@@ -75,50 +75,50 @@ export default (
     // Check if thenable (i.e. a Promise)
     if (typeof stateChanger.then === typeof Object.assign) {
       return stateChanger.then(stateChanger => (
-        //this.processStateChanger(stateChanger, errorID)
-        stateChanger && this.changeState(stateChangerCatchingError(stateChanger, errorID))
+        //this.processStateChanger(stateChanger, errorKey)
+        stateChanger && this.changeState(stateChangerCatchingError(stateChanger, errorKey))
       ))
       .catch(error => {
-        this.changeState({ [errorID]: error })
+        this.changeState({ [errorKey]: error })
       })
     }
     // Check if iterator
     else if (typeof stateChanger.next === typeof Object.assign) {
-      return this.processIterator(stateChanger, errorID)
+      return this.processIterator(stateChanger, errorKey)
     }
     // Otherwise, change state immediately
     // Required for things like <textarea> onChange to keep cursor in correct position
     else {
-      this.changeState(stateChangerCatchingError(stateChanger, errorID))
+      this.changeState(stateChangerCatchingError(stateChanger, errorKey))
     }
   }
 
-  processIterator(iterator, errorID, previousValue) {
-    Promise.resolve(this.processStateChanger(previousValue, errorID)) // Process the previous changer
+  processIterator(iterator, errorKey, previousValue) {
+    Promise.resolve(this.processStateChanger(previousValue, errorKey)) // Process the previous changer
     .then(() => nextFrame()) // Wait for next frame
     .then(() => {
       const result = iterator.next() // Get the next step from the iterator
       if (result.done) { // No more iterations remaining
-        return this.processStateChanger(result.value, errorID) // Process the changer
+        return this.processStateChanger(result.value, errorKey) // Process the changer
       }
       else {
-        return this.processIterator(iterator, errorID, result.value) // Process the iterator’s following steps
+        return this.processIterator(iterator, errorKey, result.value) // Process the iterator’s following steps
       }
     })
   }
 
-  callHandler(handler, errorID, args) {
+  callHandler(handler, errorKey, args) {
     // Call handler function, props first, then rest of args
     try {
       const result = handler.apply(null, args);
       // Can return multiple state changers, ensure array, and then loop through
       [].concat(result).forEach(stateChanger => {
-        this.processStateChanger(stateChanger, errorID)
+        this.processStateChanger(stateChanger, errorKey)
       })
     }
     // Catch error within handler’s (first) function
     catch (error) {
-      this.changeState({ [errorID]: error })
+      this.changeState({ [errorKey]: error })
     }
   }
 
