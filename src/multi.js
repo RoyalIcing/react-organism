@@ -26,6 +26,43 @@ function cellStateChangerCatchingError(cellKey, stateChanger, errorKey) {
   }
 }
 
+function processStateChanger(changeState, stateChanger, storeError) {
+  if (!stateChanger) {
+    return;
+  }
+
+  // Check if thenable (i.e. a Promise)
+  if (typeof stateChanger.then === typeof Object.assign) {
+    return stateChanger.then(stateChanger => (
+      stateChanger && changeState(stateChanger)
+    ))
+    .catch(storeError)
+  }
+  // Check if iterator
+  else if (typeof stateChanger.next === typeof Object.assign) {
+    return processIterator(changeState, stateChanger, storeError)
+  }
+  // Otherwise, change state immediately
+  // Required for things like <textarea> onChange to keep cursor in correct position
+  else {
+    changeState(stateChanger)
+  }
+}
+
+function processIterator(changeState, iterator, storeError, previousValue) {
+  return Promise.resolve(processStateChanger(changeState, previousValue, storeError)) // Process the previous changer
+  .then(() => nextFrame()) // Wait for next frame
+  .then(() => {
+    const result = iterator.next() // Get the next step from the iterator
+    if (result.done) { // No more iterations remaining
+      return processStateChanger(changeState, result.value, storeError) // Process the changer
+    }
+    else {
+      return processIterator(changeState, iterator, storeError, result.value) // Process the iterator’s following steps
+    }
+  })
+}
+
 export default function makeMultiOrganism(
   Parent,
   cells,
@@ -99,59 +136,25 @@ export default function makeMultiOrganism(
     componentWillReceiveProps(nextProps) {
       this.loadAsync(nextProps, this.props)
     }
-
-    processStateChanger(cellKey, stateChanger, errorKey) {
-      if (!stateChanger) {
-        return;
-      }
-  
-      // Check if thenable (i.e. a Promise)
-      if (typeof stateChanger.then === typeof Object.assign) {
-        return stateChanger.then(stateChanger => (
-          //this.processStateChanger(stateChanger, errorKey)
-          stateChanger && this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, errorKey))
-        ))
-        .catch(error => {
-          this.changeState({ [errorKey]: error })
-        })
-      }
-      // Check if iterator
-      else if (typeof stateChanger.next === typeof Object.assign) {
-        return this.processIterator(cellKey, stateChanger, errorKey)
-      }
-      // Otherwise, change state immediately
-      // Required for things like <textarea> onChange to keep cursor in correct position
-      else {
-        this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, errorKey))
-      }
-    }
-  
-    processIterator(cellKey, iterator, errorKey, previousValue) {
-      Promise.resolve(this.processStateChanger(cellKey, previousValue, errorKey)) // Process the previous changer
-      .then(() => nextFrame()) // Wait for next frame
-      .then(() => {
-        const result = iterator.next() // Get the next step from the iterator
-        if (result.done) { // No more iterations remaining
-          return this.processStateChanger(cellKey, result.value, errorKey) // Process the changer
-        }
-        else {
-          return this.processIterator(cellKey, iterator, errorKey, result.value) // Process the iterator’s following steps
-        }
-      })
-    }
   
     callHandler(cellKey, handler, errorKey, args) {
+      const storeError = (error) => {
+        this.changeState({ [errorKey]: error })
+      }
       // Call handler function, props first, then rest of args
       try {
+        const changeState = (stateChanger) => {
+          this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, errorKey))
+        }
         const result = handler.apply(null, args);
         // Can return multiple state changers, ensure array, and then loop through
         [].concat(result).forEach(stateChanger => {
-          this.processStateChanger(cellKey, stateChanger, errorKey)
+          processStateChanger(changeState, stateChanger, storeError)
         })
       }
       // Catch error within handler’s (first) function
       catch (error) {
-        this.changeState({ [errorKey]: error })
+        storeError(error)
       }
     }
 
