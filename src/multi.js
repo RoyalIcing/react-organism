@@ -99,6 +99,61 @@ export default function makeMultiOrganism(
       this.loadAsync(nextProps, this.props)
     }
 
+    processStateChanger(cellKey, stateChanger, errorID) {
+      if (!stateChanger) {
+        return;
+      }
+  
+      // Check if thenable (i.e. a Promise)
+      if (typeof stateChanger.then === typeof Object.assign) {
+        return stateChanger.then(stateChanger => (
+          //this.processStateChanger(stateChanger, errorID)
+          stateChanger && this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, errorID))
+        ))
+        .catch(error => {
+          this.changeState({ [errorID]: error })
+        })
+      }
+      // Check if iterator
+      else if (typeof stateChanger.next === typeof Object.assign) {
+        return this.processIterator(stateChanger, errorID)
+      }
+      // Otherwise, change state immediately
+      // Required for things like <textarea> onChange to keep cursor in correct position
+      else {
+        this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, errorID))
+      }
+    }
+  
+    processIterator(cellKey, iterator, errorID, previousValue) {
+      Promise.resolve(this.processStateChanger(cellKey, previousValue, errorID)) // Process the previous changer
+      .then(() => nextFrame()) // Wait for next frame
+      .then(() => {
+        const result = iterator.next() // Get the next step from the iterator
+        if (result.done) { // No more iterations remaining
+          return this.processStateChanger(cellKey, result.value, errorID) // Process the changer
+        }
+        else {
+          return this.processIterator(cellKey, iterator, errorID, result.value) // Process the iterator’s following steps
+        }
+      })
+    }
+  
+    callHandler(cellKey, handler, errorID, args) {
+      // Call handler function, props first, then rest of args
+      try {
+        const result = handler.apply(null, args);
+        // Can return multiple state changers, ensure array, and then loop through
+        [].concat(result).forEach(stateChanger => {
+          this.processStateChanger(cellKey, stateChanger, errorID)
+        })
+      }
+      // Catch error within handler’s (first) function
+      catch (error) {
+        this.changeState({ [errorID]: error })
+      }
+    }
+
     cellsProxy = Object.keys(cells).reduce((cellsProxy, cellKey) => {
       const handlersIn = cells[cellKey]
       const handlers = Object.keys(handlersIn).reduce((out, key) => {
@@ -116,38 +171,12 @@ export default function makeMultiOrganism(
             args = adjustArgs(args)
           }
 
-          // Call handler function, props first, then rest of args
-          // Note: that this should only be given its own handlers, as that’s all it knows about
-          try {
-            const result = handlersIn[key].apply(null, [ Object.assign({}, this.props, { handlers }) ].concat(args));
-            // Can return multiple state changers, ensure array, and then loop through
-            [].concat(result).forEach(stateChanger => {
-              // Can return no state changer
-              if (!stateChanger) {
-                return;
-              }
-
-              // Check if thenable (i.e. a Promise)
-              if (typeof stateChanger.then === typeof Object.assign) {
-                stateChanger
-                  .then(stateChanger => {
-                    stateChanger && this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, 'handlerError'))
-                  })
-                  .catch(error => {
-                    this.changeState({ handlerError: error })
-                  })
-              }
-              // Otherwise, change state immediately
-              // Required for things like <textarea> onChange to keep cursor in correct position
-              else {
-                this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, 'handlerError'))
-              }
-            })
-          }
-          // Catch error within handler’s (first) function
-          catch (error) {
-            this.changeState({ handlerError: error })
-          }
+          this.callHandler(
+            cellKey,
+            handlersIn[key],
+            'handlerError',
+            [ Object.assign({}, this.props, { handlers }) ].concat(args)
+          )
         }
         return out
       }, {})
