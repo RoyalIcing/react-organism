@@ -1,4 +1,5 @@
 import React from 'react'
+import nextFrame from './nextFrame'
 
 function cellStateChangerCatchingError(cellKey, stateChanger, errorKey) {
   return (prevState, props) => {
@@ -116,7 +117,7 @@ export default function makeMultiOrganism(
       }
       // Check if iterator
       else if (typeof stateChanger.next === typeof Object.assign) {
-        return this.processIterator(stateChanger, errorID)
+        return this.processIterator(cellKey, stateChanger, errorID)
       }
       // Otherwise, change state immediately
       // Required for things like <textarea> onChange to keep cursor in correct position

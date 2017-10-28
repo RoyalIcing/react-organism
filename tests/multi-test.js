@@ -7,6 +7,10 @@ import makeMulticelledOrganism from 'src/multi'
 
 const waitMs = duration => new Promise(resolve => setTimeout(resolve, duration))
 
+const nextFrame = () => new Promise((resolve) => {
+  window.requestAnimationFrame(resolve)
+})
+
 function Counter({
   id,
   count,
@@ -15,6 +19,7 @@ function Counter({
     increment,
     decrement,
     delayedIncrement,
+    delayedIncrementGenerator,
     doNothing,
     blowUp,
     blowUp2,
@@ -34,6 +39,9 @@ function Counter({
       <button id={`${id}-increment`} onClick={ increment } children='+' />
       { delayedIncrement &&
         <button id={`${id}-delayedIncrement`} onClick={ delayedIncrement } children='+' />
+      }
+      { delayedIncrementGenerator &&
+        <button id={`${id}-delayedIncrementGenerator`} onClick={ delayedIncrementGenerator } children='+' />
       }
       { doNothing &&
         <button id={`${id}-doNothing`} onClick={ doNothing } children='Do Nothing' />
@@ -66,6 +74,11 @@ const counterModel = {
   delayedIncrement: async () => {
     await waitMs(delayWait)
     return ({ count }) => ({ count: count + 1 })
+  },
+  delayedIncrementGenerator: function *() {
+    yield waitMs(delayWait / 2)
+    yield waitMs(delayWait / 2)
+    yield ({ count }) => ({ count: count + 1 })
   },
   doNothing: () => {},
   blowUp: () => {
@@ -173,9 +186,21 @@ describe('makeMulticelledOrganism', () => {
     expect($bCurrentCount.textContent).toBe('b: 1')
     expect(changeCount).toBe(4)
 
+    // Click delayedIncrementGenerator
+    ReactTestUtils.Simulate.click($('#a-delayedIncrementGenerator'))
+    await waitMs(delayWait / 2)
+    await nextFrame()
+    await waitMs(delayWait / 2)
+    await nextFrame()
+    await waitMs(5)
+    expect($aCurrentCount.textContent).toBe('a: 4')
+    expect($bCurrentCount.textContent).toBe('b: 1')
+    expect(changeCount).toBe(5)
+
     ReactTestUtils.Simulate.click($('#b-doNothing'))
-    expect(node.innerHTML).toContain('3')
-    expect(changeCount).toBe(4)
+    expect($aCurrentCount.textContent).toBe('a: 4')
+    expect($bCurrentCount.textContent).toBe('b: 1')
+    expect(changeCount).toBe(5)
 
     // Click blowUp
     ReactTestUtils.Simulate.click($('#a-blowUp'))

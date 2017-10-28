@@ -88,9 +88,8 @@ describe('makeOrganism', () => {
         return ({ count }) => ({ count: count + 1 })
       },
       delayedIncrementGenerator: function *() {
-        //yield waitMs(delayWait / 2)
-        yield waitMs(1)
-        //yield waitMs(delayWait / 2)
+        yield waitMs(delayWait / 2)
+        yield waitMs(delayWait / 2)
         yield ({ count }) => ({ count: count + 1 })
       },
       doNothing: () => {},
@@ -131,7 +130,11 @@ describe('makeOrganism', () => {
 
     // Click delayedIncrementGenerator
     ReactTestUtils.Simulate.click($('#delayedIncrementGenerator'))
-    await waitMs(delayWait + 5)
+    await waitMs(delayWait / 2)
+    await nextFrame()
+    await waitMs(delayWait / 2)
+    await nextFrame()
+    await waitMs(5)
     expect(node.innerHTML).toContain('4')
     expect(changeCount).toBe(4)
 
