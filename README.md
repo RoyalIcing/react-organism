@@ -288,12 +288,17 @@ export default makeOrganism(Counter, counterState)
 
 ```js
 // App.js
+import React from 'react'
 import CounterOrganism from './organisms/Counter'
 
-// ...
-  return (
-    <CounterOrganism />
-  )
+class App extends React.Component {
+  render() {
+    return (
+      <div>
+        <CounterOrganism />
+      </div>
+    )
+  }
 }
 ```
 
