@@ -346,7 +346,7 @@ Your state is handled by a collection of functions. Each function is pure: they 
 
 Each handler is passed the current props first, followed by the called arguments:
 - `(props, event)`: most event handlers, e.g. `onClick`, `onChange`
-- `(props, first, second)`
+- `(props, first, second)`: e.g. `handler(first, second)`
 - `(props, ...args)`: get all arguments passed
 - `(props)`: ignore any arguments
 - `()`: ignore props and arguments
@@ -355,7 +355,8 @@ Handlers must return one of the following:
 - An object with new state changes, a la React’s `setState(changes)`.
 - A function accepting the previous state and current props, and returns the new state, a la React’s `setState((prevState, props) => changes)`.
 - A promise resolving to any of the above (object / function), which will then be used to update the state. Uncaught errors are stored in state under the key `handlerError`. Alternatively, your handler can use the `async`/`await` syntax.
-- An array of any of the above (object / function / promise).
+- An iterator, such as one made by using a [generator function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function%2A). Each object passed to `yield` may be one of the above (object / function / promise).
+- An array of any of the above (object / function / promise / iterator).
 - Or optionally, nothing.
 
 There are some handlers for special tasks, specifically:
@@ -364,7 +365,7 @@ There are some handlers for special tasks, specifically:
 Return initial state to start off with, a la React’s `initialState`. Passed props.
 
 #### `load(props: object, prevProps: object?, { handlers: object }) => object | Promise<object> | void` (optional)
-Passed the current props and the previous props. Return new state, a Promise returning new state, or nothing.
+Passed the current props and the previous props. Return new state, a Promise returning new state, or nothing. You may also use a generator function (`function * load(props, prevProps)`) and `yield` state changes.
 
 If this is the first time loaded or if being reloaded, then `prevProps` is `null`.
 
