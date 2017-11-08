@@ -67,7 +67,13 @@ describe('makeOrganism', () => {
   })
 
   beforeEach(() => {
+    try {
     node = document.createElement('div')
+    }
+    catch (error) {
+      console.error('ERRORS', error)
+      throw error
+    }
   })
 
   afterEach(() => {
@@ -78,6 +84,7 @@ describe('makeOrganism', () => {
     let changeCount = 0
     const delayWait = 20
 
+    console.log('before makeOrganism')
     const CounterOrganism = makeOrganism(Counter, {
       initial: ({ initialCount = 0 }) => ({ count: initialCount }),
       increment: () => ({ count }) => ({ count: count + 1 }),
@@ -109,9 +116,11 @@ describe('makeOrganism', () => {
         changeCount++
       }
     })
+    console.log('after makeOrganism')
 
     await promiseRender(<CounterOrganism initialCount={ 2 } />)
     expect(node.innerHTML).toContain('2')
+    console.log(node.innerHTML)
 
     // Click increment
     ReactTestUtils.Simulate.click($('#increment'))

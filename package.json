@@ -21,7 +21,9 @@
     "explore-bundle": "source-map-explorer",
     "prepublishOnly": "npm run test && npm run build"
   },
-  "dependencies": {},
+  "dependencies": {
+    "awareness": "^1.0.0"
+  },
   "peerDependencies": {
     "react": "^15.0.0-0 || ^16.0.0-0"
   },
