@@ -1,4 +1,4 @@
-import extractValuesFromDOMEvent from 'awareness/es/extractValuesFromDOMEvent'
+import extractValuesFromDOMEvent from 'awareness/lib/extractValuesFromDOMEvent'
 
 export default function extractFromDOM(args) {
   if (args[0]) {
