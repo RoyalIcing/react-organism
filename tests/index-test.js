@@ -144,6 +144,7 @@ describe('makeOrganism', () => {
     await waitMs(delayWait / 2)
     await nextFrame()
     await waitMs(5)
+    await nextFrame()
     expect(node.innerHTML).toContain('4')
     expect(changeCount).toBe(4)
 
