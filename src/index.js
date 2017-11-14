@@ -10,13 +10,6 @@ export default (
     adjustArgs
   } = {}
 ) => class Organism extends PureComponent {
-  awareness = makeAwareness(this.alterState, handlersIn, {
-    getProps: () => this.props,
-    adjustArgs
-  })
-
-  state = this.awareness.state
-
   alterState = (stateChanger) => {
     // Can either be a plain object or a callback to transform the existing state
     this.setState(
@@ -25,6 +18,13 @@ export default (
       onChange ? () => { onChange(this.state) } : undefined
     )
   }
+
+  awareness = makeAwareness(this.alterState, handlersIn, {
+    getProps: () => this.props,
+    adjustArgs
+  })
+
+  state = this.awareness.state
 
   componentDidMount() {
     this.awareness.loadAsync(this.props, null)

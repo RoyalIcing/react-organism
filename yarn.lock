@@ -264,8 +264,8 @@ autoprefixer@^6.3.1:
     postcss-value-parser "^3.2.3"
 
 awareness@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/awareness/-/awareness-1.0.0.tgz#43c6914a7831ab3650de78f0474e3bd7d425ecb4"
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/awareness/-/awareness-1.1.0.tgz#8292dc0ed6cd9be41ba7c4b32c887e8ec3b40879"
 
 aws-sign2@~0.6.0:
   version "0.6.0"
