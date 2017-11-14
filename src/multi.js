@@ -1,4 +1,5 @@
 import React from 'react'
+import makeAwareness from 'awareness'
 import nextFrame from './nextFrame'
 
 function cellStateChangerCatchingError(cellKey, stateChanger, errorKey) {
@@ -72,9 +73,36 @@ export default function makeMultiOrganism(
   } = {}
 ) {
   return class OrganismMulticelled extends React.Component {
-    state = Object.keys(cells).reduce((state, cellKey) => {
+    getProps = () => this.props
+
+    cellsAwareness = Object.keys(cells).reduce((out, cellKey) => {
+      const alterState = (stateChanger) => {
+        // Can either be a plain object or a callback to transform the existing state
+        this.setState(
+          (prevState, props) => {
+            const cellChanges = stateChanger(prevState[cellKey])
+            if (cellChanges.loadError || cellChanges.handlerError) {
+              return cellChanges
+            }
+            return {
+              [cellKey]: Object.assign({}, prevState[cellKey], cellChanges)
+            }
+          },
+          // Call onChange once updated with current version of state
+          onChange ? () => { onChange(this.state) } : undefined
+        )
+      }
+
+      out[cellKey] = makeAwareness(alterState, cells[cellKey], {
+        getProps: this.getProps,
+        adjustArgs
+      })
+      return out
+    }, {})
+    
+    state = Object.keys(this.cellsAwareness).reduce((state, cellKey) => {
       // Grab each cell’s initial value
-      state[cellKey] = cells[cellKey].initial(this.props)
+      state[cellKey] = this.cellsAwareness[cellKey].state
       return state
     }, {
       loadError: null,
@@ -136,54 +164,9 @@ export default function makeMultiOrganism(
     componentWillReceiveProps(nextProps) {
       this.loadAsync(nextProps, this.props)
     }
-  
-    callHandler(cellKey, handler, errorKey, args) {
-      const storeError = (error) => {
-        this.changeState({ [errorKey]: error })
-      }
-      // Call handler function, props first, then rest of args
-      try {
-        const changeState = (stateChanger) => {
-          this.changeState(cellStateChangerCatchingError(cellKey, stateChanger, errorKey))
-        }
-        const result = handler.apply(null, args);
-        // Can return multiple state changers, ensure array, and then loop through
-        [].concat(result).forEach(stateChanger => {
-          processStateChanger(changeState, stateChanger, storeError)
-        })
-      }
-      // Catch error within handler’s (first) function
-      catch (error) {
-        storeError(error)
-      }
-    }
 
     cellsProxy = Object.keys(cells).reduce((cellsProxy, cellKey) => {
-      const handlersIn = cells[cellKey]
-      const handlers = Object.keys(handlersIn).reduce((out, key) => {
-        // Special case for `load` handler to reload fresh
-        if (key === 'load') {
-          out.load = () => {
-            // FIXME
-            this.loadAsync(this.props, null)
-          }
-          return out
-        }
-
-        out[key] = (...args) => {
-          if (adjustArgs) {
-            args = adjustArgs(args)
-          }
-
-          this.callHandler(
-            cellKey,
-            handlersIn[key],
-            'handlerError',
-            [ Object.assign({}, this.props, { handlers }) ].concat(args)
-          )
-        }
-        return out
-      }, {})
+      const { handlers } = this.cellsAwareness[cellKey]
 
       Object.defineProperty(cellsProxy, cellKey, {
         get: () => {

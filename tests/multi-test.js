@@ -279,21 +279,23 @@ describe('makeMulticelledOrganism', () => {
 
     ReactTestUtils.Simulate.click($('#a-uppercaseTitle'))
     expect($aTitle.textContent).toBe('COUNTER')
+    expect(changeCount).toBe(7)
 
     ReactTestUtils.Simulate.click($('#a-makeTitleHeading'))
     expect($aTitle.textContent).toBe('Heading')
+    expect(changeCount).toBe(8)
 
     // Click reload
     ReactTestUtils.Simulate.click($('#reload'))
     await waitMs(loadWait + 5)
     expect($aCurrentCount.textContent).toContain('18')
-    expect(changeCount).toBe(10)
+    expect(changeCount).toBe(9)
 
     // Load error
     await promiseRender(<Organism initialCount={ 22 } loadedCount='Not a number' />)
     await waitMs(loadWait + 5)
     expect(latestState.loadError).toExist()
-    expect(changeCount).toBe(12)
+    expect(changeCount).toBe(11)
   })
 
   it('getInitialProps()', async () => {
