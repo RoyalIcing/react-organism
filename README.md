@@ -8,7 +8,7 @@
 
 - Supports `async` and `await` and easy loading (e.g. `fetch()`), plus reloading when props change
 - Animate using generator functions: just `yield` the state for each frame
-- Tiny: [1.69 KB gzipped (3.49 KB uncompressed)]
+- Tiny: 1.69 KB gzipped (3.49 KB uncompressed)
 - Embrace the existing functional `setState` while avoiding boilerplate (no writing `this.setState()` or `.bind` again)
 - Easy to write units test for (example coming soon)
 - Dedicated [create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`

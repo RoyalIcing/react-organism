@@ -1,5 +1,5 @@
 /*!
- * react-organism v0.3.3
+ * react-organism v0.3.4
  * MIT Licensed
  */
 (function webpackUniversalModuleDefinition(root, factory) {
