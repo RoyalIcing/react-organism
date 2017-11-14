@@ -1,6 +1,6 @@
 {
   "name": "react-organism",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Separate React state in a dead simple functional way",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -22,7 +22,7 @@
     "prepublishOnly": "npm run test && npm run build"
   },
   "dependencies": {
-    "awareness": "^1.0.0"
+    "awareness": "^1.1.3"
   },
   "peerDependencies": {
     "react": "^15.0.0-0 || ^16.0.0-0"

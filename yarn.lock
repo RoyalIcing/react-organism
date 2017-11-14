@@ -261,7 +261,7 @@ autoprefixer@^6.3.1:
     postcss "^5.2.16"
     postcss-value-parser "^3.2.3"
 
-awareness@^1.0.0:
+awareness@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/awareness/-/awareness-1.1.3.tgz#eac40b3315fa7b3a98dc8fd5b0f04766498abd2e"
 
