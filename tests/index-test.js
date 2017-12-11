@@ -1,5 +1,5 @@
 import expect from 'expect'
-import React from 'react'
+import React, { Component } from 'react'
 import {render, unmountComponentAtNode} from 'react-dom'
 import ReactTestUtils from 'react-dom/test-utils'
 
@@ -234,6 +234,73 @@ describe('makeOrganism', () => {
     await waitMs(loadWait + 5)
     expect(latestState.loadError).toExist()
     expect(changeCount).toBe(6)
+  })
+
+  it('Supports getState/setState props', async () => {
+    let changeCount = 0
+    const delayWait = 20
+
+    const CounterOrganism = makeOrganism(Counter, {
+      initial: ({ initialCount = 0 }) => ({ count: initialCount }),
+      increment: () => ({ count }) => ({ count: count + 1 }),
+      decrement: () => ({ count }) => ({ count: count - 1 }),
+      delayedIncrement: async () => {
+        await waitMs(delayWait / 2)
+        await waitMs(delayWait / 2)
+        return ({ count }) => ({ count: count + 1 })
+      },
+      delayedIncrementGenerator: function *() {
+        yield waitMs(delayWait / 2)
+        yield waitMs(delayWait / 2)
+        yield ({ count }) => ({ count: count + 1 })
+      },
+      doNothing: () => {},
+      blowUp: () => {
+        throw new Error('Whoops')
+      },
+      blowUp2: () => (prevState) => {
+        throw new Error('Whoops 2')
+      },
+      blowUpDelayed: async () => {
+        await waitMs(delayWait)
+        throw new Error('Whoops Delayed')
+      }
+    }, {
+      onChange(state) {
+        latestState = state
+        changeCount++
+      }
+    })
+
+    class Wrapper extends Component {
+      state = CounterOrganism.initialStateForProps(this.props)
+
+      render() {
+        return <CounterOrganism
+          getState={ () => this.state }
+          setState={ this.setState.bind(this) }
+        />
+      }
+    }
+
+    await promiseRender(<Wrapper initialCount={ 2 } />)
+    expect(node.innerHTML).toContain('2')
+    console.log(node.innerHTML)
+
+    // Click increment
+    ReactTestUtils.Simulate.click($('#increment'))
+    expect(node.innerHTML).toContain('3')
+
+    // Click decrement
+    ReactTestUtils.Simulate.click($('#decrement'))
+    expect(node.innerHTML).toContain('2')
+    expect(changeCount).toBe(2)
+
+    // Click delayedIncrement
+    ReactTestUtils.Simulate.click($('#delayedIncrement'))
+    await waitMs(delayWait + 5)
+    expect(node.innerHTML).toContain('3')
+    expect(changeCount).toBe(3)
   })
 
 })
