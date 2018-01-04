@@ -1,5 +1,5 @@
 /*!
- * react-organism v0.3.4
+ * react-organism v0.3.6
  * MIT Licensed
  */
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -95,6 +95,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_awareness__ = __webpack_require__(3);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -124,10 +126,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
       return _ret = (_temp = (_this = _possibleConstructorReturn(this, _PureComponent.call.apply(_PureComponent, [this].concat(args))), _this), _this.alterState = function (stateChanger) {
         // Can either be a plain object or a callback to transform the existing state
-        _this.setState(stateChanger,
+        (_this.props.setState || _this.setState).call(_this, stateChanger,
         // Call onChange once updated with current version of state
         onChange ? function () {
-          onChange(_this.state);
+          onChange(_this.currentState);
         } : undefined);
       }, _this.awareness = Object(__WEBPACK_IMPORTED_MODULE_1_awareness__["a" /* default */])(_this.alterState, handlersIn, {
         getProps: function getProps() {
@@ -137,18 +139,29 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
       }), _this.state = _this.awareness.state, _temp), _possibleConstructorReturn(_this, _ret);
     }
 
+    Organism.initialStateForProps = function initialStateForProps(props) {
+      return handlersIn.initial(props);
+    };
+
     Organism.prototype.componentDidMount = function componentDidMount() {
-      this.awareness.loadAsync(this.props, null);
+      this.awareness.loadAsync(this.props, null, this.currentState);
     };
 
     Organism.prototype.componentWillReceiveProps = function componentWillReceiveProps(nextProps) {
-      this.awareness.loadAsync(nextProps, this.props);
+      this.awareness.loadAsync(nextProps, this.props, this.currentState);
     };
 
     Organism.prototype.render = function render() {
       // Render the pure component, passing both props and state, plus handlers bundled together
-      return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Pure, _extends({}, this.props, this.state, { handlers: this.awareness.handlers }));
+      return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(Pure, _extends({}, this.props, this.currentState, { handlers: this.awareness.handlers }));
     };
+
+    _createClass(Organism, [{
+      key: 'currentState',
+      get: function get() {
+        return this.props.getState ? this.props.getState() : this.state;
+      }
+    }]);
 
     return Organism;
   }(__WEBPACK_IMPORTED_MODULE_0_react__["PureComponent"]);
@@ -291,9 +304,13 @@ var defaultTransformErrorForKey = function defaultTransformErrorForKey(key) {
   }, handlersIn.initial(getProps()));
 
   // Uses `load` handler, if present, to asynchronously load initial state
-  function loadAsync(nextProps, prevProps) {
+  function loadAsync() {
     if (handlersIn.load) {
-      callHandler(handlersIn.load, transformErrorForKey('load'), [nextProps, prevProps], alterState);
+      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      callHandler(handlersIn.load, transformErrorForKey('load'), args, alterState);
     }
   }
 
@@ -307,8 +324,8 @@ var defaultTransformErrorForKey = function defaultTransformErrorForKey(key) {
     }
 
     out[key] = function () {
-      for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-        args[_key] = arguments[_key];
+      for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        args[_key2] = arguments[_key2];
       }
 
       if (adjustArgs) {

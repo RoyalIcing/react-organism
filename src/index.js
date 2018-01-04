@@ -36,11 +36,11 @@ export default (
   state = this.awareness.state
 
   componentDidMount() {
-    this.awareness.loadAsync(this.props, null)
+    this.awareness.loadAsync(this.props, null, this.currentState)
   }
 
   componentWillReceiveProps(nextProps) {
-    this.awareness.loadAsync(nextProps, this.props)
+    this.awareness.loadAsync(nextProps, this.props, this.currentState)
   }
 
   render() {
