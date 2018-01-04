@@ -4,14 +4,14 @@
 [![npm package][npm-badge]][npm]
 [![Coveralls][coveralls-badge]][coveralls]
 
-**Dead simple React state management to bring pure components alive**
+**Dead simple React/Preact state management to bring pure components alive**
 
-- Supports `async` and `await` and easy loading (e.g. `fetch()`), plus reloading when props change
-- Animate using generator functions: just `yield` the state for each frame
+- Supports `async`/`await` and easy loading (e.g. `fetch()`)
+- Reload when particular props change
+- Animate using generator functions: just `yield` the new state for each frame
 - Tiny: 1.69 KB gzipped (3.49 KB uncompressed)
-- Embrace the existing functional `setState` while avoiding boilerplate (no writing `this.setState()` or `.bind` again)
-- Easy to write units test for (example coming soon)
-- Dedicated [create-react-organism](https://www.npmjs.com/package/create-react-organism) tool to quickly create organisms: `yarn create react-organism OrganismName`
+- Embraces the existing functional `setState` while avoiding boilerplate (no writing `this.setState()` or `.bind` again)
+- Easy to unit test
 
 #### Table of contents
 
