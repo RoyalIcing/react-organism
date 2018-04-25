@@ -39,8 +39,8 @@ export default (
     this.awareness.loadAsync(this.props, null, this.currentState)
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.awareness.loadAsync(nextProps, this.props, this.currentState)
+  componentDidUpdate(prevProps, prevState) {
+    this.awareness.loadAsync(this.props, prevProps, this.currentState)
   }
 
   render() {
